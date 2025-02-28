@@ -19,6 +19,6 @@ import dexprice.modules.utilis.timedefine   as timedefine
 
 
 #
-realdata =mexcovhl.mexc_token_history('AUTISMUSDT', '1D', 1708387200, 1740355200,7890,0)
-# 获取现货K线（需要设置flag=2）
+realdata =mexcovhl.mexc_token_history('EGGSUSDT', '1D', 1708387200, 1740546156,7890,0)
+# 获取现货K线（需要设置flag=0）
 print(realdata)

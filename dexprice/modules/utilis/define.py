@@ -71,7 +71,7 @@ class CexTokenPriceHistory:
 
 
     def __repr__(self):
-        return f"TokenPriceHistory(tokenid={self.tokenid},  open={self.open}, high={self.high}, low={self.low}, close={self.close}, time={self.time}, volume={self.volume},volume={self.amount})"
+        return f"CexTokenPriceHistory(tokenid={self.tokenid},  open={self.open}, high={self.high}, low={self.low}, close={self.close}, time={self.time}, volume={self.volume},amount={self.amount})"
 # modules/utilis/constants.py
 
 class OvhlFromDex:

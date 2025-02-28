@@ -7,11 +7,11 @@ import dexprice.modules.OHLCV.one_geck as one_geck
 
 import dexprice.modules.mexc.mexc_queue as mexc_queue
 
-symbol= 'BTC_USDT'
+symbol= 'PEP1_USDT'
 # 生成开始和结束时间的时间戳
 start_timestamp = one_geck.datetime_to_timestamp(2025, 2, 20, 0, 0, 0, is_utc=True)
 end_timestamp = one_geck.datetime_to_timestamp(2025, 2, 23, 0, 0, 0, is_utc=True)
-kline = 'Day1'
+kline = 'D'
 aggregate = '1'
 
 
