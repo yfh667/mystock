@@ -138,7 +138,7 @@ class MexcOvhlTaskManager:
     def process_task(self, queue):
         success = False
         failure_count = 0
-        max_failures = 5  # 设置最大失败次数
+        max_failures = 2  # 设置最大失败次数
         proxy_acquired = False  # 记录是否成功获取到代理
 
         while not success and failure_count < max_failures:
@@ -162,21 +162,7 @@ class MexcOvhlTaskManager:
 
                 historydatas = mexcovhl.mexc_token_history_queue( queue, proxy.port,self.flag)
 
-               # creattime =  initial_timesta.determine_initial_timesta(symbol, proxy.port)
-               #  token = define.CexTokenInfo(
-               #      name=symbol,  # Token name (string)
-               #      chainid='USDT',  # Chain ID (string)
-               #      creattime=creattime
-               #  )
 
-            #  tokens_info = Get_Token_Dexscreen(self.sourcetype, self.chain_id, addresses, proxy.port)
-            #     if token == "FAILED":
-            #         print(f"Request failed for addresses {symbol}. Retrying...")
-            #         failure_count += 1
-            #         time.sleep(2)
-            #         if failure_count >= max_failures:
-            #             self.proxy_pool.remove_proxy(proxy)
-            #     else:
                 with self.result_lock:
                     if(len(historydatas) > 0):
                         self.results.extend(historydatas)

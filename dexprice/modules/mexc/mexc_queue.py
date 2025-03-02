@@ -153,6 +153,8 @@ def mexc_create_request_queue(symbol: str,
         kline_duration = timedelta(hours=agg)
     elif kline == 'D':
         kline_duration = timedelta(days=agg)
+    elif kline == 'W':
+        kline_duration = timedelta(weeks=agg)
     else:
         raise ValueError(f"无效的 kline 值：{kline}，应为 'minute'、'hour' 或 'day'。")
 

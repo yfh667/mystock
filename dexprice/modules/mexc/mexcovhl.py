@@ -197,6 +197,9 @@ def mexc_token_history_basic(ohlcv_data, symbol,flag=1):
                 historydatas.append(historydata)
         return historydatas
     else:
+        if(not ohlcv_data):
+            #here sometime the token is not in the cex,so it is ignored
+            return []
         timelen =len(ohlcv_data)
         if (timelen == 0):
             return []

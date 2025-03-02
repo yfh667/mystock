@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     db_folder = DATA_FOLDER + '/cex'  # 数据库存储文件夹
  #   db_name_raw = "mexc_spot" + '.db'  # 数据库文件名
-    db_mubiao_name = "daddt" + '.db'
+    db_mubiao_name = "von" + '.db'
 
 
     db = cexdb.CexSQLiteDatabase(db_folder, db_mubiao_name)
@@ -59,29 +59,22 @@ if __name__ == '__main__':
 # here is the strategy
     for tokenhistory in tokenhistorys:
         sorthistory = basefunction.sort_by_time(tokenhistory)
-        days = len(sorthistory)
+        length = len(sorthistory)
         tokenid  = sorthistory[0].tokenid
-
-        baches_7 =days//7
-        amout_arrary = []
-
-        for i in range(baches_7):
-            index = days-i*7-1
-            amout = 0
-
-            for j in range(7):
-                amout = amout+sorthistory[index-j].amount
-            amout_arrary.append(amout)
+        token = db.read_token_withid(tokenid)
 
 
-        if (amout_arrary[0] > 2 * amout_arrary[1]):
+        avage = 0
+        data_number =0
+        for i in range(length):
+            avage = (avage*data_number + sorthistory[i].open)/(data_number+1)
+            data_number = data_number + 1
+            if(sorthistory[i].open>3*avage):
 
-
-            symbol = db.read_token_withid(tokenid).name
-            print(f"we find { symbol}")
+                print(f"we find {token.name}")
+                break
 
 
 
 
-    print("helo")
     db.close()
