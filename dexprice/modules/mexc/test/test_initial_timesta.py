@@ -1,7 +1,7 @@
 # 示例调用
 import dexprice.modules.mexc.initial_timesta as initial_timesta
 if __name__ == "__main__":
-    symbol = "SOL_USDT"
+    symbol = "DOODIUSDT"
     # interval = "Month1"
     # start = None  # 允许为空
     # end = 1738308461  # 允许为空

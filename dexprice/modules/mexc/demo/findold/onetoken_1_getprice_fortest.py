@@ -13,6 +13,7 @@ import dexprice.modules.OHLCV.one_geck as one_geck
 import dexprice.modules.mexc.mexc_queue as mexc_queue
 import dexprice.modules.mexc.mexcovhl_parall as mexcovhl_parall
 import  dexprice.modules.cexdb.multidb as multidb
+import dexprice.modules.mexc.Cex_token as Cex_token
 if __name__ == '__main__':
 
 
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     db_folder = DATA_FOLDER + '/cex'  # 数据库存储文件夹
  #   db_name_raw = "mexc_spot" + '.db'  # 数据库文件名
     flag = 0
-    db_mubiao_name = "von" + '.db'
+    db_mubiao_name = "stream" + '.db'
 
 
 
@@ -31,12 +32,13 @@ if __name__ == '__main__':
 
     db.connect()
     # 创建一个 Tokendb 实例
-    token = define.CexTokenInfo(
-        name="VONUSDT",  # Token name (string)
-        chainid="USDT",  # Chain ID (string)
-        creattime=''
-
-    )
+    token = Cex_token.Token('ODINDOG',flag)
+   #  token = define.CexTokenInfo(
+   #      name="STREAM_USDT",  # Token name (string)
+   #      chainid="USDT",  # Chain ID (string)
+   #      creattime=''
+   #
+   #  )
 
     tokens = []
     tokens.append(token)
@@ -54,7 +56,7 @@ if __name__ == '__main__':
     start_timestamp =creattime_want
     end_timestamp = timedefine.get_current_utc_timestemp()
 
-    kline = 'W'
+    kline = 'D'
     aggregate =1
     queues = []
 

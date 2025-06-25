@@ -11,14 +11,14 @@ import dexprice.modules.utilis.timedefine   as timedefine
 #data = mexcovhl.get_kline_data("BTC_USDT", interval="1D", start=1710000000, end=1710086400)
 
 
-#
-# realdata =mexcovhl.mexc_token_history('BTC_USDT', '1D', 1740036087, 1740196980,7890,1)
-# # 获取现货K线（需要设置flag=2）
-# print(realdata)
 
-
-
-#
-realdata =mexcovhl.mexc_token_history('KIMSUSDT', '1D', 1708387200, 1740546156,7890,0)
-# 获取现货K线（需要设置flag=0）
+realdata =mexcovhl.mexc_token_history('BTC_USDT', '1D', 1740036087, 1740196980,7890,1)
+# 获取现货K线（需要设置flag=2）
 print(realdata)
+
+
+
+# #
+# realdata =mexcovhl.mexc_token_history('ODINDOGUSDT', '1D', 1708387200, 1741177621,7890,0)
+# # 获取现货K线（需要设置flag=0）
+# print(realdata)

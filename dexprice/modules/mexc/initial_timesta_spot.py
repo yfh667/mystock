@@ -107,5 +107,5 @@ def determine_initial_timesta(symbol,port=7890):
 # end =1546300800000
 # kline_data = get_kline_data('SNTUSDT', '1d', start, end, 7890)
 # print(kline_data)
-# TIME =  determine_initial_timesta('SNTUSDT',port=7890)
+# TIME =  determine_initial_timesta('DOODIUSDT',port=7890)
 # print(TIME)

@@ -55,8 +55,8 @@ if __name__ == '__main__':
     for token in tokens:
         symbol.append(token+'USDT')
 
-    rate =0.3
-    capacity = 20
+    rate =0.1
+    capacity = 10
     max_threads_per_proxy = 1
     clash_api_url = "http://127.0.0.1:9097"
     headers = {"Authorization": "Bearer 123"}

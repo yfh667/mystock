@@ -12,14 +12,10 @@ from dexprice.three import creattime
 import dexprice.modules.OHLCV.one_geck as one_geck
 import dexprice.modules.mexc.mexc_queue as mexc_queue
 import dexprice.modules.mexc.mexcovhl_parall as mexcovhl_parall
+import  dexprice.modules.cexdb.multidb as multidb
+import dexprice.modules.strategy.basefunction as basefunction
 
 if __name__ == '__main__':
-
-
-    kline = 'H'
-    aggregate = 4
-
-
 
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,9 +23,10 @@ if __name__ == '__main__':
     DATA_FOLDER = os.path.join(PROJECT_ROOT, "Data")
 
     db_folder = DATA_FOLDER + '/cex'  # 数据库存储文件夹
-    db_name_raw = "mexc_contract" + '.db'  # 数据库文件名
-    db_mubiao_name = "contract_r1" + '.db'
-    flag = 1
+    db_name_raw = "mexc_spot_REAL" + '.db'  # 数据库文件名
+    db_mubiao_name = "spotold" + '.db'
+    flag = 0
+
 
 
 
@@ -41,7 +38,7 @@ if __name__ == '__main__':
 
     tokens = db.readdbtoken()
 
-    creattime_want = one_geck.datetime_to_timestamp(2024, 1, 1, 0, 0, 0, is_utc=True)
+    creattime_want = one_geck.datetime_to_timestamp(2023, 1, 1, 0, 0, 0, is_utc=True)
 
     usetoken = []
     for token in tokens:
@@ -49,8 +46,7 @@ if __name__ == '__main__':
 
         creattime_token = timedefine.datetime_to_timestamp_str(token.creattime)
         if(creattime_token>creattime_want ):
-            if(token.name.endswith('_USDT')):
-                usetoken.append(token)
+            usetoken.append(token)
     print (usetoken)
     db.close()
 
@@ -63,7 +59,8 @@ if __name__ == '__main__':
     start_timestamp =creattime_want
     end_timestamp = timedefine.get_current_utc_timestemp()
 
-
+    kline = 'D'
+    aggregate =1
     queues = []
 
     for token in usetoken:
@@ -98,6 +95,49 @@ if __name__ == '__main__':
     token_price_history_list = db.collect_ovhl_data(results)
     db.insert_multiple_price_history(token_price_history_list)
 
+
+    tokens = db.readdbtoken()
+    requestedtokenid = []
+    for token in tokens:
+        requestedtokenid.append(token.tokenid)
+
+
+
+
+
+    db_path = db_folder + '/' + db_mubiao_name
+
+    task_manager = multidb.CexDatabaseReadTaskManager(requestedtokenid, db_path, max_threads=6)
+    results = task_manager.run()
+    tokenhistorys = []
+    # 处理结果
+    for token_id, rows in results:
+        tokenhistory = []
+        for row in rows:
+            test = define.CexTokenPriceHistory(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8])
+            tokenhistory.append(test)
+        tokenhistorys.append(tokenhistory)
+        # here is the strategy
+
+
+    # for tokenhistory in tokenhistorys:
+    #     sorthistory = basefunction.sort_by_time(tokenhistory)
+    #     length = len(sorthistory)
+    #
+    #
+    #     if(len(tokenhistory)>2):
+    #
+    #         tokenid = sorthistory[0].tokenid
+    #         token = db.read_token_withid(tokenid)
+    #         if(tokenhistory[-2].open>1.5*tokenhistory[-2].low):
+    #             print(f"we find {token.name}")
+
+        # for i in range(length):
+        #     avage = (avage * data_number + sorthistory[i].open) / (data_number + 1)
+        #     data_number = data_number + 1
+        #     if (sorthistory[i].open > 3 * avage):
+        #         print(f"we find {token.name}")
+        #         break
 
     db.close()
 

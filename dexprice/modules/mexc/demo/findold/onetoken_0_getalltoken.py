@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     tokens = db.readdbtoken()
 
-    creattime_want = one_geck.datetime_to_timestamp(2024, 1, 1, 0, 0, 0, is_utc=True)
+    creattime_want = one_geck.datetime_to_timestamp(2023, 1, 1, 0, 0, 0, is_utc=True)
 
     usetoken = []
     for token in tokens:
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     start_timestamp =creattime_want
     end_timestamp = timedefine.get_current_utc_timestemp()
 
-    kline = 'W'
+    kline = 'D'
     aggregate =1
     queues = []
 

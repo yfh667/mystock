@@ -28,7 +28,10 @@ if __name__ == '__main__':
 
     db_folder = DATA_FOLDER + '/cex'  # 数据库存储文件夹
     db_name_raw = "mexc_contract" + '.db'  # 数据库文件名
-    db_mubiao_name = "contract_r1" + '.db'
+
+
+
+    db_mubiao_name = "mexc_contract_wanted_time_price" + str(aggregate)+kline+'.db'
     flag = 1
 
 
@@ -52,6 +55,7 @@ if __name__ == '__main__':
             if(token.name.endswith('_USDT')):
                 usetoken.append(token)
     print (usetoken)
+
     db.close()
 
 
@@ -60,7 +64,10 @@ if __name__ == '__main__':
     db.connect()
     db.insert_Multidata(usetoken)
 
-    start_timestamp =creattime_want
+
+    price_time_want = one_geck.datetime_to_timestamp(2025, 6, 24, 0, 0, 0, is_utc=True)
+
+    start_timestamp =price_time_want
     end_timestamp = timedefine.get_current_utc_timestemp()
 
 
