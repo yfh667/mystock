@@ -12,6 +12,7 @@ from dexprice.three import creattime
 import dexprice.modules.OHLCV.one_geck as one_geck
 import dexprice.modules.mexc.mexc_queue as mexc_queue
 import dexprice.modules.mexc.mexcovhl_parall as mexcovhl_parall
+import datetime
 
 if __name__ == '__main__':
 
@@ -43,8 +44,8 @@ if __name__ == '__main__':
     db.connect()
 
     tokens = db.readdbtoken()
-
     creattime_want = one_geck.datetime_to_timestamp(2024, 1, 1, 0, 0, 0, is_utc=True)
+
 
     usetoken = []
     for token in tokens:
@@ -64,10 +65,22 @@ if __name__ == '__main__':
     db.connect()
     db.insert_Multidata(usetoken)
 
+    price_time_want = one_geck.datetime_to_timestamp(2025, 6, 20, 0, 0, 0, is_utc=True)
 
-    price_time_want = one_geck.datetime_to_timestamp(2025, 6, 24, 0, 0, 0, is_utc=True)
+   # price_time_want = one_geck.datetime_to_timestamp(2025, 6, 24, 0, 0, 0, is_utc=True)
+    # 获取当前时间的 UTC 时间戳
+    current_time = datetime.datetime.utcnow()
+    # 计算前两天的时间
+    two_days_ago = current_time - datetime.timedelta(days=2)
 
-    start_timestamp =price_time_want
+    # 将其转换为时间戳格式
+    start_timestamp = two_days_ago.timestamp()
+
+    # end_timestamp = one_geck.datetime_to_timestamp(2025, 6, 23, 0, 0, 0, is_utc=True)
+
+
+
+    # start_timestamp =price_time_want
     end_timestamp = timedefine.get_current_utc_timestemp()
 
 
