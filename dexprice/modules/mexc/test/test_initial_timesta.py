@@ -12,6 +12,6 @@ if __name__ == "__main__":
     #     start = time[0]
     # if kline_data:
     #     print(json.dumps(kline_data, indent=4))
-    time = initial_timesta.determine_initial_timesta(symbol,7890)
+    time = initial_timesta.determine_initial_timesta(symbol,55511)
     if(time):
         print(time)

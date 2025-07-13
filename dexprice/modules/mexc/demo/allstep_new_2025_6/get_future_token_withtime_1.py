@@ -29,7 +29,7 @@ if __name__ == '__main__':
     capacity = 20
     max_threads_per_proxy = 1
     clash_api_url = "http://127.0.0.1:9097"
-    headers = {"Authorization": "Bearer 123"}
+    headers = {"Authorization": "Bearer manba"}
 
     startport = 50000
 

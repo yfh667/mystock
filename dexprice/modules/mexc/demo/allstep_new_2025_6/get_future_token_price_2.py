@@ -17,8 +17,8 @@ import datetime
 if __name__ == '__main__':
 
 
-    kline = 'H'
-    aggregate = 4
+    kline = 'D'
+    aggregate = 1
 
 
 
@@ -65,12 +65,15 @@ if __name__ == '__main__':
     db.connect()
     db.insert_Multidata(usetoken)
 
-    price_time_want = one_geck.datetime_to_timestamp(2025, 6, 20, 0, 0, 0, is_utc=True)
+    price_time_want = one_geck.datetime_to_timestamp(2025, 7 , 1, 0, 0, is_utc=True)
 
    # price_time_want = one_geck.datetime_to_timestamp(2025, 6, 24, 0, 0, 0, is_utc=True)
     # 获取当前时间的 UTC 时间戳
     current_time = datetime.datetime.utcnow()
     # 计算前两天的时间
+
+   # current_time = one_geck.datetime_to_timestamp(2025, 7 , 2, 0, 0, is_utc=True)
+
     two_days_ago = current_time - datetime.timedelta(days=2)
 
     # 将其转换为时间戳格式
@@ -95,7 +98,7 @@ if __name__ == '__main__':
     capacity = 20
     max_threads_per_proxy = 1
     clash_api_url = "http://127.0.0.1:9097"
-    headers = {"Authorization": "Bearer 123"}
+    headers = {"Authorization": "Bearer manba"}
 
     startport = 50000
 

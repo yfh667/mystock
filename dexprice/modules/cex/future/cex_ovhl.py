@@ -10,13 +10,14 @@ from token_bucket import Limiter, MemoryStorage
 import dexprice.modules.proxy.proxydefine as proxydefine
 import dexprice.modules.gateio.cexprice as cexprice
 import dexprice.modules.proxy.testproxy as testproxy
-import dexprice.modules.mexc.initial_timesta as initial_timesta
+
+
 import dexprice.modules.utilis.define as define
 
 
 
-class MexcTaskManager:
-    def __init__(self, symbollist:list[str], proxies, rate, capacity, max_threads_per_proxy):
+class CexTaskManager:
+    def __init__(self, symbollist:list[str], proxies, rate, capacity, max_threads_per_proxy,fuc):
         self.task_queue = Queue()
         self.failed_tasks = Queue()
         self.results = []
@@ -27,6 +28,7 @@ class MexcTaskManager:
         self.proxy_pool.add_proxies(proxies)
         self.progress_lock = threading.Lock()
         self.threads = []
+        self.fuc  = fuc
         self.stop_event = threading.Event()
         self.max_threads_per_proxy = max_threads_per_proxy
 
@@ -159,7 +161,7 @@ class MexcTaskManager:
                 # 速率限制允许，进行请求
               #  tokens_info = geck.get_token_history2(self.chain_id, addressqueue.pool_address, addressqueue.kline, addressqueue.aggregate, addressqueue.before_timestamp, addressqueue.limit, "usd", "base",  proxy.port)
                 #tokens_info =  cexprice.get_token_history2(namequeue.name+'_USDT', namequeue.aggregate+namequeue.kline,  namequeue.limit,  int(namequeue.before_timestamp), proxy.port)
-                creattime =  initial_timesta.determine_initial_timesta(symbol, proxy.port)
+                creattime =  self.fuc(symbol, proxy.port)
                 token = define.CexTokenInfo(
                     name=symbol,  # Token name (string)
                     chainid='USDT',  # Chain ID (string)

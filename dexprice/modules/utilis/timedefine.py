@@ -250,11 +250,18 @@ def addtime(starttime):
     dt = datetime.strptime(formatted_date, "%Y-%m-%d %H:%M:%S")
     month = dt.month
     year = dt.year
-    if month == 12:
+
+    if month>=11:
         endtime = dt.replace(year=year+1,day=1,month=1, minute=0, second=0, microsecond=0)
     else:
+        endtime = dt.replace(month=month+2,day=1,minute=0, second=0, microsecond=0)
 
-        endtime = dt.replace(month=month+1,day=1,minute=0, second=0, microsecond=0)
+
+    # if month == 12:
+    #     endtime = dt.replace(year=year+1,day=1,month=1, minute=0, second=0, microsecond=0)
+    # else:
+    #
+    #     endtime = dt.replace(month=month+2,day=1,minute=0, second=0, microsecond=0)
     end_string = endtime.strftime("%Y-%m-%d %H:%M:%S")
    # end_utc = datetime.strptime(end_string, "%Y-%m-%d %H:%M:%S")
     end_utc =  datetime_to_timestamp_str(end_string)

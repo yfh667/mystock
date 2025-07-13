@@ -200,8 +200,8 @@ def mexc_token_history_queue(  queue: mexc_queue.mexcqueue,port=7890 ,flag=1):
     return historydatas
 
 #
+if __name__ == "__main__":
 
+    kline_data = get_kline_data('RFC_USDT', '1D', 1743462796, 1743505996,7890,0)
 
-kline_data = get_kline_data('RFC_USDT', '1D', 1743462796, 1743505996,7890,0)
-
-print(kline_data)
+    print(kline_data)
