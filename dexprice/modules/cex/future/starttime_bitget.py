@@ -11,6 +11,11 @@ def determine_initial_timesta(symbol,port=7890):
     end = None
    # end = int(time.time())
     kline_data = ovhl_bitget.get_kline_data(symbol, interval, start, end,port)
+
+    if len(kline_data) ==0:
+        kline_data = ovhl_bitget.get_kline_data(symbol,  '1W', start, end, port)
+
+
     time = []
 
     for i in kline_data:
@@ -32,7 +37,7 @@ def determine_initial_timesta(symbol,port=7890):
 
 
 if __name__ == "__main__":
-    symbol = "BTC_USDT"
+    symbol = "CBK_USDT"
     time = determine_initial_timesta(symbol,7890)
     if(time):
         print(time)

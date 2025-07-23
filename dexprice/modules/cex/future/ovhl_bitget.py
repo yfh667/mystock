@@ -63,6 +63,6 @@ def get_kline_data(
 
 if __name__ == "__main__":
 
-    kline_data = get_kline_data('BTC_USDT', '1D', 1656604800, 1656777600,7890)
+    kline_data = get_kline_data('CBK_USDT', '1MON', 1752163200, 1752249600,7890)
 
     print(kline_data)

@@ -36,9 +36,6 @@ if __name__ == '__main__':
     flag = 1
 
 
-
-
-
     db = cexdb.CexSQLiteDatabase(db_folder, db_name_raw)
 
     db.connect()
@@ -65,7 +62,7 @@ if __name__ == '__main__':
     db.connect()
     db.insert_Multidata(usetoken)
 
-    price_time_want = one_geck.datetime_to_timestamp(2025, 7 , 1, 0, 0, is_utc=True)
+    price_time_want = one_geck.datetime_to_timestamp(2025, 6 , 28, 0, 0, is_utc=True)
 
    # price_time_want = one_geck.datetime_to_timestamp(2025, 6, 24, 0, 0, 0, is_utc=True)
     # 获取当前时间的 UTC 时间戳
@@ -79,13 +76,15 @@ if __name__ == '__main__':
     # 将其转换为时间戳格式
     start_timestamp = two_days_ago.timestamp()
 
-    # end_timestamp = one_geck.datetime_to_timestamp(2025, 6, 23, 0, 0, 0, is_utc=True)
+    end_timestamp = one_geck.datetime_to_timestamp(2025, 7, 10, 0, 0, 0, is_utc=True)
 
+    six_day_ago = current_time - datetime.timedelta(days=6)
 
-
-    # start_timestamp =price_time_want
-    end_timestamp = timedefine.get_current_utc_timestemp()
-
+   # start_timestamp = price_time_want
+    start_timestamp =six_day_ago.timestamp()
+    one_day_ago =  current_time - datetime.timedelta(days=1)
+   # end_timestamp = timedefine.get_current_utc_timestemp()
+    end_timestamp = one_day_ago.timestamp()
 
     queues = []
 

@@ -4,14 +4,7 @@ import dexprice.modules.cexdb.cexdb as cexdb
 import dexprice.modules.utilis.define as define
 import os
 import dexprice.modules.utilis.findroot as findroot
-import dexprice.modules.mexc.initial_timesta as initial_timesta
-import dexprice.modules.mexc.initial_timesta_parall as initial_timesta_parall
-import dexprice.modules.proxy.proxymultitheread as proxymultitheread
-import dexprice.modules.utilis.timedefine as timedefine
-from dexprice.three import creattime
-import dexprice.modules.OHLCV.one_geck as one_geck
-import dexprice.modules.mexc.mexc_queue as mexc_queue
-import dexprice.modules.mexc.mexcovhl_parall as mexcovhl_parall
+
 import  dexprice.modules.cexdb.multidb as multidb
 
 import dexprice.modules.strategy.basefunction as basefunction
@@ -24,7 +17,7 @@ if __name__ == '__main__':
 
     db_folder = DATA_FOLDER + '/cex'  # 数据库存储文件夹
  #   db_name_raw = "mexc_spot" + '.db'  # 数据库文件名
-    db_mubiao_name = "mexc_contract_wanted_time_price4H" + '.db'
+    db_mubiao_name = "mexc_contract_wanted_time_price1D" + '.db'
 
 
     db = cexdb.CexSQLiteDatabase(db_folder, db_mubiao_name)
@@ -35,10 +28,6 @@ if __name__ == '__main__':
     requestedtokenid = []
     for token in tokens:
         requestedtokenid.append(token.tokenid)
-
-
-
-
 
     db_path = db_folder+'/'+db_mubiao_name
 
@@ -61,23 +50,32 @@ if __name__ == '__main__':
         sorthistory = basefunction.sort_by_time(tokenhistory)
         length_his = len(sorthistory)
     # here we could use our strategy .
-
-        allvolume = 0
+        if length_his<7:
+            continue
+        amount = 0
         counts=0
 
-        for i in range(length_his):
-            counts=1
-            allvolume+=sorthistory[i].volume
-            average = allvolume/length_his
-            if sorthistory[i].volume>5*average:
+        for i in range(length_his-1):
+            amount = amount + sorthistory[i].amount
+        avaeg_amoint = amount/(length_his-1)
 
-                if sorthistory[i].volume>5*sorthistory[i-1].volume:
+        if sorthistory[length_his-1].amount>5*avaeg_amoint:
+            token = db.read_token_withid(sorthistory[i].tokenid)
+            print("yes", token.name, sorthistory[i].time)
 
-
-                    token = db.read_token_withid(sorthistory[i].tokenid)
-                    print("yes", token.name,sorthistory[i].time)
-
-                    break
+        # for i in range(length_his):
+        #     counts=1
+        #     allvolume+=sorthistory[i].volume
+        #     average = allvolume/length_his
+        #     if sorthistory[i].volume>5*average:
+        #
+        #         if sorthistory[i].volume>5*sorthistory[i-1].volume:
+        #
+        #
+        #             token = db.read_token_withid(sorthistory[i].tokenid)
+        #             print("yes", token.name,sorthistory[i].time)
+        #
+        #             break
 
 
 

@@ -96,6 +96,6 @@ def  get_all_token(platform,port):
 
 
 if __name__ == "__main__":
-    biancetoken = get_all_token('bybit',7890)
+    biancetoken = get_all_token('bitget',7890)
     print(biancetoken)
     print(1)

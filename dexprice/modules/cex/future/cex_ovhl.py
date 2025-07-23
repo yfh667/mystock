@@ -78,7 +78,7 @@ class CexTaskManager:
             thread.start()
             with threads_lock:
                 self.threads.append((thread, stop_event))
-        max_retries = 3
+        max_retries = 2
         retries = 0
         # 主线程监控代理池和线程数量
         while True:

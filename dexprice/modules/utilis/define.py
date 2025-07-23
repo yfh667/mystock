@@ -94,7 +94,7 @@ class OvhlFromDex:
 class OvhlFromCex:
     def __init__(self,   name : str, open: float, high: float, low: float, close: str,time: str ,volume: float,amount:float):
         self.name = name
-
+#voulume : token amount: usdt
         self.open = open
         self.high = high
         self.low = low
