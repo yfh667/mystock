@@ -17,4 +17,6 @@ if __name__ == '__main__':
     )
     tokeninfos = [tokeninfo1, tokeninfo2]
     mexctg.mexctg2(chatid, tokeninfos)
-  #  tgbot.sendmessage_chatid("@jingou24","refresh token",7890)
+    tgbot.sendmessage_chatid("@jingou24","refresh token",7890)
+
+

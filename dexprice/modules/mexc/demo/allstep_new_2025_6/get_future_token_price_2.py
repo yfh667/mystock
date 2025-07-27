@@ -78,13 +78,17 @@ if __name__ == '__main__':
 
     end_timestamp = one_geck.datetime_to_timestamp(2025, 7, 10, 0, 0, 0, is_utc=True)
 
-    six_day_ago = current_time - datetime.timedelta(days=6)
+    six_day_ago = current_time - datetime.timedelta(days=7)
 
-   # start_timestamp = price_time_want
-    start_timestamp =six_day_ago.timestamp()
-    one_day_ago =  current_time - datetime.timedelta(days=1)
+    nowday =current_time - datetime.timedelta(days=4)
+    day_ago = nowday-datetime.timedelta(days=6)
+
+
+  #  start_timestamp = price_time_want
+    start_timestamp =day_ago.timestamp()
+   # one_day_ago =  current_time - datetime.timedelta(days=2)
    # end_timestamp = timedefine.get_current_utc_timestemp()
-    end_timestamp = one_day_ago.timestamp()
+    end_timestamp = nowday.timestamp()
 ##
     queues = []
 

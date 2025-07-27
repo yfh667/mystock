@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
         if sorthistory[length_his-1].amount>5*avaeg_amoint:
             token = db.read_token_withid(sorthistory[i].tokenid)
-            print("yes", token.name, sorthistory[i].time)
+            print("yes", token.name, sorthistory[-1].time)
 
         # for i in range(length_his):
         #     counts=1
