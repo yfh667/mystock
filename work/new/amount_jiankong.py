@@ -87,7 +87,8 @@ def ovhl2():
 
     six_day_ago = current_time - datetime.timedelta(days=7)
 
-    nowday = current_time - datetime.timedelta(days=5)
+  #  nowday = current_time - datetime.timedelta(days=1)
+    nowday = current_time
     day_ago = nowday - datetime.timedelta(days=6)
 
     #  start_timestamp = price_time_want
