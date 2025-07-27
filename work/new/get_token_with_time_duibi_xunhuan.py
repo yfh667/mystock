@@ -106,7 +106,7 @@ def main():
 
             )
             results, failed_tasks = task_manager.run()
-            #  db.insert_Multidata(results)
+
             # 打印实例属性
 
             # here we need  duibi ,yu
@@ -123,7 +123,7 @@ def main():
 
             # 输出多出的 token 信息
             bybit_extra_tokens = [item for item in results if item.name.strip() in extra_names]
-
+            db.insert_Multidata(results)
             db.close()
 
             cex_name = 'bitget'
@@ -164,7 +164,7 @@ def main():
             bitget_extra_tokens = [item for item in results if item.name.strip() in extra_names]
 
             #
-            #  db.insert_Multidata(results)
+            db.insert_Multidata(results)
             # 打印实例属性
             db.close()
 
