@@ -171,6 +171,8 @@ class GeckTaskManager:
                 # 速率限制允许，进行请求
                 tokens_info = geck.get_token_history2(self.chain_id, addresses, self.timeframe, self.aggregate, self.before_timestamp, self.limit, "usd", "base",  proxy.port)
               #  tokens_info = Get_Token_Dexscreen(self.sourcetype, self.chain_id, addresses, proxy.port)
+
+
                 if tokens_info == "FAILED":
                     print(f"Request failed for addresses {addresses}. Retrying...")
                     failure_count += 1

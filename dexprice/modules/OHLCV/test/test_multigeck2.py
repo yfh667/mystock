@@ -11,18 +11,13 @@ import os
 import dexprice.modules.utilis.findroot as findroot
 
 def main():
-    addresses = ["6USpEBbN94DUYLUi4a2wo3AZDCyozon1PLGYu27jzPkX"]  # 您的地址列表
+   # addresses = ["6USpEBbN94DUYLUi4a2wo3AZDCyozon1PLGYu27jzPkX"]  # 您的地址列表
 
-    # addresses = ["FzFb2DqD8YDQNJJZNaw7T5jwheq4NmW7DeJL6HweTXkn",
-    #              "A4Cv8W894qRCbHkE2K9NW7Q1gdC8huH91suZb4i3g71v",
-    #              "6gRKHruMjdhL2pMFR4eWxqNKJywty9CEGjmXYfeK25aq",
-    #              "7d7eq8XndLr4JAWVAogDGJopW19qo8kVuKvCSvkkzYGE",
-    #              "9wRhpAGKzhdiMeZAzWga2F9u71keiDaUoatw24EYFPhY",
-    #              "2VUjifCjFij7ZWnju8BZ6dDTruAozLomp77qgr8mvpS6",
-    #              "48dtTgfgasqP2hbg2A4Qfbf6XANeRd9ZUi7em945bHAm",
-    #              "6USpEBbN94DUYLUi4a2wo3AZDCyozon1PLGYu27jzPkX"]
+    addresses = ["0xc23db46993f643f1fa0494cd30f9f43505885d84",
+                 "0x7cCC3010e52fbca54467ff68eEc4be78420571C5",
+    ]
 
-    chain_id = "solana"
+    chain_id = "bsc"
     current_dir = os.path.dirname(os.path.abspath(__file__))
     PROJECT_ROOT = findroot.find_project_root(current_dir)
     DATA_FOLDER = os.path.join(PROJECT_ROOT, "Data")
@@ -41,6 +36,10 @@ def main():
 
     startport = 50000
     proxys = proxymultitheread.get_one_ip_proxy_multithread(startport, clash_api_url, headers)
+
+
+
+
 
     task_manager = dexscreen_parrel.TaskManager(addresses, sourcetype, chain_id, proxys, rate, capacity,
                                                 max_threads_per_proxy)

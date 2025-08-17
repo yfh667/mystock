@@ -199,9 +199,6 @@ class GeckTaskManager2:
         return success
 
 
-
-
-
     def monitor_failed_proxies(self):
         while not self.stop_event.is_set():
             with self.proxy_pool.lock:

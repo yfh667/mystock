@@ -1,8 +1,9 @@
 
 import  dexprice.modules.OHLCV.geck as geck
 import time
-from datetime import datetime, timezone
+from datetime import  timezone
 
+import datetime
 
 import time
 from datetime import datetime, timedelta
@@ -24,33 +25,35 @@ def timestamp_to_datetime(timestamp, to_utc=True):
 
 if __name__ == "__main__":
     # 示例用法
-    network = "eth"
-    pool_address = ['0xF965fcb75A18fb321B1Fa7F161C099Bf1BE90b70']
-    timeframe = "minute"  # 可选值: day, hour, minute
+    network = "bsc"
+    pool_address = ['0x7F0B9A92fe7ABBC64d38cbD02a3c39191657b8bB']
+    timeframe = "day"  # 可选值: day, hour, minute
 
 
 
-    # time period to aggregate for each ohlcv (eg. /minute?aggregate=15 for 15m ohlcv)
-    #
-    # Available values (day): 1
-    #
-    # Available values (hour): 1, 4, 12
-    #
-    # Available values (minute): 1, 5, 15
-    aggregate = "5"     # 聚合时间段
 
 
+    aggregate = "1"     # 聚合时间段
+
+
+    # 当前时间戳
     current_timestamp = int(time.time())
-   # utc_time = datetime.fromtimestamp(current_timestamp, tz=timezone.utc)
-    before_timestamp = str(current_timestamp)  # 可选的时间戳参数
-    print(before_timestamp)
-   # print(utc_time)
-   #  before_date = datetime.fromtimestamp(current_timestamp) - timedelta(days=100)
-   #  before_timestamp = str(int(before_date.timestamp()))
-    limit = 2
+
+    # 转换成 datetime 对象（UTC）
+    current_dt = datetime.fromtimestamp(current_timestamp, tz=timezone.utc)
+
+    # 150 天前
+    day_ago_dt = current_dt - timedelta(days=10)
+
+    # 转回时间戳
+    before_timestamp =1755431848
+
+
+
+    limit = 100
     currency = "usd"
     token = "base"
-    proxy_port = 50005  # 指定代理端口
+    proxy_port = 50001  # 指定代理端口
 
     ohlcv_data = geck.get_token_history2(network, pool_address, timeframe, aggregate, before_timestamp, limit, currency, token, proxy_port)
 
@@ -59,3 +62,18 @@ if __name__ == "__main__":
         print(data.time)
     print(ohlcv_data[0])
 
+
+
+# Out[1]: 'bsc'
+# pool_address
+# Out[2]: ['0x7F0B9A92fe7ABBC64d38cbD02a3c39191657b8bB']
+# timeframe
+# Out[3]: 'day'
+# aggregate
+# Out[4]: '1'
+# before_timestamp
+# Out[5]: 1755431848
+# limit
+# Out[6]: 100
+# currency
+# Out[7]: 'usd'
