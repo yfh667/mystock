@@ -51,7 +51,7 @@ def ovhl2():
     db.connect()
 
     tokens = db.readdbtoken()
-    creattime_want = one_geck.datetime_to_timestamp(2024, 1, 1, 0, 0, 0, is_utc=True)
+    creattime_want = one_geck.datetime_to_timestamp(2020, 1, 1, 0, 0, 0, is_utc=True)
 
     usetoken = []
     for token in tokens:
@@ -87,8 +87,8 @@ def ovhl2():
 
     six_day_ago = current_time - datetime.timedelta(days=7)
 
-  #  nowday = current_time - datetime.timedelta(days=1)
-    nowday = current_time
+    nowday = current_time - datetime.timedelta(days=4)
+   # nowday = current_time
     day_ago = nowday - datetime.timedelta(days=6)
 
     #  start_timestamp = price_time_want

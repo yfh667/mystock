@@ -84,7 +84,7 @@ class App(tk.Tk):
         try:
             # 固定：chain_id=''，proxy_port=None
             tokens_info = dexscreen_priceapi.Get_Token_Dexscreen(
-                Config.DEXCA, '', [ca], None
+                Config.DEXCA, '', [ca], 7890
             )
 
             # 1) 界面输出：保持原样打印 TokenInfo 列表的 __repr__

@@ -75,6 +75,7 @@ def ovhl2_2():
     # price_time_want = one_geck.datetime_to_timestamp(2025, 6, 24, 0, 0, 0, is_utc=True)
     # 获取当前时间的 UTC 时间戳
     current_time = datetime.datetime.utcnow()
+    current_time = current_time-datetime.timedelta(days=3)
     current_time = current_time- datetime.timedelta(days=1)
     # 计算前两天的时间
 
@@ -175,6 +176,7 @@ def ovhl2():
     # price_time_want = one_geck.datetime_to_timestamp(2025, 6, 24, 0, 0, 0, is_utc=True)
     # 获取当前时间的 UTC 时间戳
     current_time = datetime.datetime.utcnow()
+    current_time = current_time-datetime.timedelta(days=3)
     # 计算前两天的时间
 
     # current_time = one_geck.datetime_to_timestamp(2025, 7 , 2, 0, 0, is_utc=True)
