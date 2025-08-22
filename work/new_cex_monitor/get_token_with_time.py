@@ -1,9 +1,7 @@
 import dexprice.modules.cex.future.cex_getall_token_future as getalltoken
 
 
-import dexprice.modules.tg.tgbot as tgbot
-import dexprice.modules.tg.mexctg as mexctg
-import dexprice.modules.utilis.define as define
+
 import dexprice.modules.cexdb.cexdb as cexdb
 
 import dexprice.modules.utilis.define as define
@@ -28,7 +26,7 @@ if __name__ == '__main__':
     DATA_FOLDER = os.path.join(PROJECT_ROOT, "Data")
 
 
-    db_folder = DATA_FOLDER + '/cex/new'  # 数据库存储文件夹
+    db_folder = DATA_FOLDER + '/cex/new_cex_monitor'  # 数据库存储文件夹
     rate = 0.3
     capacity = 20
     max_threads_per_proxy = 1
@@ -36,11 +34,6 @@ if __name__ == '__main__':
     headers = {"Authorization": "Bearer manba"}
 
     startport = 50000
-
-
-
-
-
 
 
 
@@ -70,23 +63,7 @@ if __name__ == '__main__':
     )
     results, failed_tasks = task_manager.run()
 
-    #here we need  duibi ,yu
-    token  =db.readdbtoken()
-
-    # 假设 results 和 token 已经定义为你提供的列表
-
-    # 提取 name 字段
-    result_names = {item.name.strip() for item in results}
-    token_names = {item.name.strip() for item in token}
-
-    # 找出 result 中多出来的 name
-    extra_names = result_names - token_names
-
-    # 输出多出的 token 信息
-    biance_extra_tokens = [item for item in results if item.name.strip() in extra_names]
-
-
-
+    #
     db.insert_Multidata(results)
     # 打印实例属性
     db.close()
@@ -116,36 +93,9 @@ if __name__ == '__main__':
 
     )
     results, failed_tasks = task_manager.run()
-  #  db.insert_Multidata(results)
+    db.insert_Multidata(results)
     # 打印实例属性
-
-
-    #here we need  duibi ,yu
-    token  =db.readdbtoken()
-
-    # 假设 results 和 token 已经定义为你提供的列表
-
-    # 提取 name 字段
-    result_names = {item.name.strip() for item in results}
-    token_names = {item.name.strip() for item in token}
-
-    # 找出 result 中多出来的 name
-    extra_names = result_names - token_names
-
-    # 输出多出的 token 信息
-    bybit_extra_tokens = [item for item in results if item.name.strip() in extra_names]
-
     db.close()
-
-
-
-
-
-
-
-
-
-
 
     cex_name = 'bitget'
     db_name = cex_name + "_contract" + '.db'  # 数据库文件名
@@ -168,61 +118,6 @@ if __name__ == '__main__':
 
     )
     results, failed_tasks = task_manager.run()
-
-    #here we need  duibi ,yu
-    token  =db.readdbtoken()
-
-    # 假设 results 和 token 已经定义为你提供的列表
-
-    # 提取 name 字段
-    result_names = {item.name.strip() for item in results}
-    token_names = {item.name.strip() for item in token}
-
-    # 找出 result 中多出来的 name
-    extra_names = result_names - token_names
-
-    # 输出多出的 token 信息
-    bitget_extra_tokens = [item for item in results if item.name.strip() in extra_names]
-
-    #
-  #  db.insert_Multidata(results)
+    db.insert_Multidata(results)
     # 打印实例属性
     db.close()
-
-
-    # for token in biance_extra_tokens:
-    #     print(token)
-    #
-    #
-    # for token in bybit_extra_tokens:
-    #     print(token)
-    #
-    # for token in bitget_extra_tokens:
-    #     print(token)
-
-    from datetime import datetime
-
-    # 构建信息内容
-    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    message_lines = [f"{now_str}"]
-
-    # 添加 Binance 增量
-    message_lines.append("binance：")
-    for token in biance_extra_tokens:
-        message_lines.append(f"  - {token.name.strip()}")
-
-    # 添加 Bybit 增量
-    message_lines.append("bybit：")
-    for token in bybit_extra_tokens:
-        message_lines.append(f"  - {token.name.strip()}")
-
-    # 添加 Bitget 增量
-    message_lines.append("bitget：")
-    for token in bitget_extra_tokens:
-        message_lines.append(f"  - {token.name.strip()}")
-
-    # 拼接最终信息
-    final_message = "\n".join(message_lines)
-
-    # 发送到 Telegram
-    tgbot.sendmessage_chatid("@jingou24", final_message, 7890)

@@ -10,7 +10,7 @@ class MEXCAutoDownloader:
     def __init__(self, headless=False, proxy=None):
         self.options = webdriver.ChromeOptions()
         if headless:
-            self.options.add_argument("--headless=new")
+            self.options.add_argument("--headless=new_cex_monitor")
         if proxy:
             self.options.add_argument(f"--proxy-server={proxy}")
 

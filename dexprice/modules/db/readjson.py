@@ -60,6 +60,7 @@ def gettokenCAaddress(files,chainid):
                     else:
                         pass
                         #print("未找到匹配的 text 值")
+    return token
 
 def gettokenCAaddress_linshi(files):
     token = []

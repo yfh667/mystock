@@ -88,7 +88,7 @@ if __name__ == '__main__':
     db.close()
 
 
-    #hre we need inset the tokenids into the new db
+    #hre we need inset the tokenids into the new_cex_monitor db
 
     db_folder = DATA_FOLDER + '/cex/spot_over_open'  # 数据库存储文件夹
     #   db_name_raw = "mexc_spot" + '.db'  # 数据库文件名
@@ -126,6 +126,6 @@ if __name__ == '__main__':
         mexctg.mexctg2("@jingou11", added_tokens)
 
     else:
-        print("no new tokens")
+        print("no new_cex_monitor tokens")
 
     db.close()

@@ -35,7 +35,7 @@ def main():
             PROJECT_ROOT = findroot.find_project_root(current_dir)
             DATA_FOLDER = os.path.join(PROJECT_ROOT, "Data")
 
-            db_folder = DATA_FOLDER + '/cex/new'  # 数据库存储文件夹
+            db_folder = DATA_FOLDER + '/cex/new_cex_monitor'  # 数据库存储文件夹
             rate = 0.3
             capacity = 20
             max_threads_per_proxy = 1

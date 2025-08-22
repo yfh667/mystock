@@ -68,7 +68,23 @@ def main():
      'bsc': []
     }
     startport = 50000
-    before_timestamp = int(time.time())
+
+
+    current_time = datetime.datetime.utcnow()
+
+
+    before_timestamp = current_time
+    #before_timestamp = current_time - datetime.timedelta(days=3)
+
+
+
+
+
+    before_timestamp = before_timestamp.timestamp()
+    before_timestamp = int(before_timestamp)
+
+
+
 
 
     # before_timestamp = 1754744898

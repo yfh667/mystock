@@ -4,13 +4,10 @@ import sys
 import os
 
 
-import modules.db.readjson as readjson
-from modules.PriceMonitor.dexscreen_priceapi import Get_Token_Dexscreen
-from modules.utilis.define import Config,TokenInfo
-from modules.PriceMonitor.multi_dexscreen_priceapi import DexscreenApiManager  # 导入类
 
 
-
+import dexprice.modules.db.readjson as readjson
+import dexprice.modules.utilis.findroot as findroot
 
 if __name__ == "__main__":
     # 读取 JSON 文件
@@ -24,9 +21,18 @@ if __name__ == "__main__":
     # directory ='/home/yfh/Desktop/linshi'
     # results =  readjson.process_all_json_files2(directory)
     # print(results)
-    file = '/home/yfh/Desktop/linshi/result.json'
+
+
+
+    ## 我们将json的token读取到json
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = findroot.find_project_root(current_dir)
+    DATA_FOLDER = os.path.join(PROJECT_ROOT, "Data")
+    filepath  = DATA_FOLDER+'/result.json'
+
+
     chaind = 'solana'
-    results =  readjson.gettokenCAaddress(file,chaind)
+    results =  readjson.gettokenCAaddress(filepath,chaind)
     #results =  readjson.gettokenca(file)
     print(results)
    #  for result in results:
