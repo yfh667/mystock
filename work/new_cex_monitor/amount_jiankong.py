@@ -320,15 +320,18 @@ def main():
 
     db.connect()
 
-    symbol = getalltoken.getalltoken()
+    # symbol = getalltoken.getalltoken()
    # symbol  = ['BTC','SOL']
     tokens = []
     # 过滤掉包含 "STOCK" 的
-    filtered = [t for t in symbol if "STOCK" not in t.upper()]
-    symbol = filtered
+    # filtered = [t for t in symbol if "STOCK" not in t.upper()]
+    # symbol = filtered
+
+    symbol = [t for t in getalltoken.getalltoken()
+              if "STOCK" not in t.upper() and t.endswith("_USDT")]
 
     rate =0.3
-    capacity = 20
+    capacity = 10
     max_threads_per_proxy = 1
     clash_api_url = "http://127.0.0.1:9097"
     headers = {"Authorization": "Bearer manba"}
@@ -374,13 +377,16 @@ def main2():
 
     db.connect()
 
-    symbol = getalltoken.getalltoken()
-   # symbol  = ['BTC','SOL']
+   # symbol = getalltoken.getalltoken()
+    symbol = [t for t in getalltoken.getalltoken()
+              if "STOCK" not in t.upper() and t.endswith("_USDT")]
+
+    # symbol  = ['BTC','SOL']
     tokens = []
     filtered = [t for t in symbol if "STOCK" not in t.upper()]
     symbol = filtered
     rate =0.3
-    capacity = 20
+    capacity = 10
     max_threads_per_proxy = 1
     clash_api_url = "http://127.0.0.1:9097"
     headers = {"Authorization": "Bearer manba"}
