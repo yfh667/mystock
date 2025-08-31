@@ -323,6 +323,9 @@ def main():
     symbol = getalltoken.getalltoken()
    # symbol  = ['BTC','SOL']
     tokens = []
+    # 过滤掉包含 "STOCK" 的
+    filtered = [t for t in symbol if "STOCK" not in t.upper()]
+    symbol = filtered
 
     rate =0.3
     capacity = 20
@@ -374,7 +377,8 @@ def main2():
     symbol = getalltoken.getalltoken()
    # symbol  = ['BTC','SOL']
     tokens = []
-
+    filtered = [t for t in symbol if "STOCK" not in t.upper()]
+    symbol = filtered
     rate =0.3
     capacity = 20
     max_threads_per_proxy = 1
