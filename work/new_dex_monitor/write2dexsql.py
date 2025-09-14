@@ -1,6 +1,6 @@
 # 示例使用
 
-import  math
+
 import dexprice.modules.proxy.proxymultitheread as proxymultitheread
 import dexprice.modules.PriceMonitor.dexscreen_parrel as dexscreen_parrel
 import  dexprice.modules.utilis.define as define
@@ -10,7 +10,7 @@ import os
 import math
 
 import dexprice.modules.db.insert_db as insert_db
-import dexprice.modules.db.readjson as readjson
+import readjson as readjson
 import dexprice.modules.utilis.findroot as findroot
 def filter_ca_by_chain(result, chain_name):
     """
@@ -39,26 +39,31 @@ if __name__ == "__main__":
 
 
     chaind = 'solana'
+    #  读取json文件，获得新币
     results =  readjson.gettokenCAaddress(filepath,chaind)
     #results =  readjson.gettokenca(file)
     print(results)
 
    # print(len(results))
     # 假设 results 是你的初始数据
+    # 获得新币后，我们需要进行筛选，把solana的挑选出来
     filtered_results = [result for result in results if result['chain'].lower() == 'solana']
 
     # 输出过滤后的结果
     # for result in filtered_results:
     #     print(f"Chain: {result['chain']}, CA: {result['ca']}")
+    # 然后我们吧这个ca给挑选出来
     CA_addresses = [result['ca'] for result in filtered_results]
    # CApairaddress = results
 
-
+    # 剔除重复ca
     unique_CApairaddress = remove_duplicates(CA_addresses)
 
-    # if progress_callback:
-    #     print("Starting progress tracking...")
 
+####################################################
+    #####################################
+    # 进行检测，存入到我们的一个主要的大数据库内
+    # 只要dex能够检测到的，我们都存入到这个all db里面
     max_batch_size = 5000
 
     total_addresses = len(unique_CApairaddress)

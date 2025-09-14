@@ -39,7 +39,7 @@ def extract_valid_tokens(token_new,criteria):
     sourcetype = define.Config.DEXS
     max_threads_per_proxy = 2
     clash_api_url = "http://127.0.0.1:9097"
-    headers = {"Authorization": "Bearer 123"}
+    headers = {"Authorization": "Bearer manba"}
     rate = 5
     capacity = 300
     startport = 50000
