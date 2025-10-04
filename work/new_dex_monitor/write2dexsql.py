@@ -10,7 +10,7 @@ import os
 import math
 
 import dexprice.modules.db.insert_db as insert_db
-from . import readjson
+import dexprice.modules.db.readjson as readjson
 import dexprice.modules.utilis.findroot as findroot
 def filter_ca_by_chain(result, chain_name):
     """

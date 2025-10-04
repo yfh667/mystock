@@ -162,7 +162,7 @@ class TaskManager:
     def process_task(self, addresses):
         success = False
         failure_count = 0
-        max_failures = 5  # 设置最大失败次数
+        max_failures = 2  # 设置最大失败次数
         proxy_acquired = False  # 记录是否成功获取到代理
 
         while not success and failure_count < max_failures:
