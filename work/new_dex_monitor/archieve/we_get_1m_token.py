@@ -30,6 +30,62 @@ def _get_val(obj: Any, key: str):
         return obj.get(key)
     return None
 
+
+def export_addresses2(addresses: List[str], outdir: str = ".") -> str:
+    """
+    将输入的地址列表：
+      1) 打印到控制台
+      2) 保存到 `M-D-H-m.txt`（示例：9-14-20-13.txt）
+
+    参数:
+      addresses: 一个包含地址字符串的列表，例如 ['0x123...', '0xabc...']
+      outdir: 输出文件夹路径
+
+    返回:
+      写入文件的绝对路径
+    """
+
+    # 1. 去重并保持顺序
+    seen = set()
+    valid_addrs: List[str] = []
+
+    for addr in addresses:
+        # 过滤掉 None 或 空字符串，并去重
+        if addr and isinstance(addr, str) and (addr not in seen):
+            seen.add(addr)
+            valid_addrs.append(addr)
+
+    # 2. 控制台输出
+    if valid_addrs:
+        print(f"[INFO] {len(valid_addrs)} unique addresses found:")
+        for a in valid_addrs:
+            print(a)
+    else:
+        print("[INFO] No valid addresses to export.")
+        # 如果没有数据，直接返回空字符串或根据需求处理
+        return ""
+
+    # 3. 生成文件名与目录 (注意这里使用了 datetime.datetime.now())
+    now = datetime.now()
+    filename = f"{now.month}-{now.day}-{now.hour}-{now.minute}.txt"
+
+    out_path = Path(outdir)
+    out_path.mkdir(parents=True, exist_ok=True)
+    file_path = out_path / filename
+
+    # 4. 写文件
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            for a in valid_addrs:
+                f.write(a + "\n")
+
+        abs_path = str(file_path.resolve())
+        print(f"[INFO] Saved to: {abs_path}")
+        return abs_path
+
+    except Exception as e:
+        print(f"[ERROR] Failed to write file: {e}")
+        return ""
 def compute_token_new_add(token_new: Iterable[Any],
                           token_raw: Iterable[Any],
                           key: str = "address") -> List[Any]:
@@ -188,6 +244,7 @@ if __name__ == "__main__":
 
 
     db.insert_multiple_tokeninfo2(token_new_add)
+
     export_addresses(token_new_add, outdir=".")
     #db.insert_multiple_tokeninfo(tokenreal)
 
