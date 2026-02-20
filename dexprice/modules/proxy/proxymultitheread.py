@@ -68,8 +68,12 @@ def get_one_ip_proxy_multithread_geck(startport, clash_api_url, headers):
     pool_address = ['0x7F0B9A92fe7ABBC64d38cbD02a3c39191657b8bB']
     timeframe = "day"         # 可选: day / hour / minute
     aggregate = "1"           # 聚合粒度
-    # “before_timestamp” 用当前时间做上限更稳妥；若你必须固定，也可保持不变
-    before_timestamp = 1755431848
+    # “before_timestamp” 用当前时间做上限更稳妥； 因为geck的api只能获取半年内的ovhl数据
+    current_time = datetime.datetime.now(datetime.UTC)
+    before_timestamp = int(current_time.timestamp())  # 转成整数型时间戳
+    # before_timestamp = 1755431848
+    # before_timestamp = int(current_time.timestamp())  # 转成整数型时间戳
+
     limit = 1
     currency = "usd"
     token = "base"            # 若 geck.get_token_history2 需要 token 字段，这里保留原值
@@ -132,7 +136,8 @@ def get_one_ip_proxy_multithread_geck(startport, clash_api_url, headers):
             # print(f"[DEBUG] port {port} failed: {e}")
             return None
 
-    max_workers = min(32, max(1, len(ports)))
+  # max_workers = min(32, max(1, len(ports)))
+    max_workers = min(10, max(1, len(ports)))  # 降低并发数
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(test_proxy, port): port for port in ports}
         for future in concurrent.futures.as_completed(futures):

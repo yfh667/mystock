@@ -1,157 +1,296 @@
-// 国内DNS服务器
-const domesticNameservers = [
-  "https://dns.alidns.com/dns-query", // 阿里云公共DNS
-  "https://doh.pub/dns-query", // 腾讯DNSPod
-  "https://doh.360.cn/dns-query" // 360安全DNS
+// ===================== 基础常量与配置 =====================
+// ========= 修改 =========
+// 浙大内网DNS服务器 (根据你的截图)
+const intranetNameservers = [
+  "10.10.0.21",
+  "10.10.2.21"
 ];
+// 国内DNS服务器 (优先内网，然后是公共DoH)
+const domesticNameservers = [
+  ...intranetNameservers,
+  "https://223.5.5.5/dns-query", // 阿里DoH
+  "https://doh.pub/dns-query"    // 腾讯DoH
+];
+// ========================
+
 // 国外DNS服务器
 const foreignNameservers = [
-  "https://1.1.1.1/dns-query", // Cloudflare(主)
-  "https://1.0.0.1/dns-query", // Cloudflare(备)
-  "https://208.67.222.222/dns-query", // OpenDNS(主)
-  "https://208.67.220.220/dns-query", // OpenDNS(备)
-  "https://194.242.2.2/dns-query", // Mullvad(主)
-  "https://194.242.2.3/dns-query" // Mullvad(备)
+  "https://208.67.222.222/dns-query", // OpenDNS
+  "https://77.88.8.8/dns-query",      // YandexDNS
+  "https://1.1.1.1/dns-query",        // CloudflareDNS
+  "https://8.8.4.4/dns-query"         // GoogleDNS
 ];
 // DNS配置
 const dnsConfig = {
-  "enable": true,
-  "ipv6": true,
+  enable: true,
+  listen: "0.0.0.0:1053",
+  ipv6: false,
+  "prefer-h3": false,
+  "respect-rules": true,
   "use-system-hosts": false,
-  "use-hosts": true,
   "cache-algorithm": "arc",
   "enhanced-mode": "fake-ip",
   "fake-ip-range": "198.18.0.1/16",
   "fake-ip-filter": [
-    // 本地主机/设备
+    // ========= 新增 =========
+    // 解决浙大内网访问问题的关键
+    // 参考: https://www.yinshi.tech/blog/fixing-intranet-dns-resolution-failure-after-enabling-clashx/
+    "+.zju.edu.cn",
+    // ========================
     "+.lan",
     "+.local",
-    // Windows网络出现小地球图标
     "+.msftconnecttest.com",
     "+.msftncsi.com",
-    // QQ快速登录检测失败
     "localhost.ptlogin2.qq.com",
     "localhost.sec.qq.com",
-    // 微信快速登录检测失败
+    "+.in-addr.arpa",
+    "+.ip6.arpa",
+    "time.*.com",
+    "time.*.gov",
+    "pool.ntp.org",
     "localhost.work.weixin.qq.com"
   ],
-  "default-nameserver": ["223.5.5.5", "119.29.29.29", "1.1.1.1", "8.8.8.8"],
-  "nameserver": [...domesticNameservers, ...foreignNameservers],
-  "proxy-server-nameserver": [...domesticNameservers, ...foreignNameservers],
+  // ========= 修改 =========
+  // 添加了 10.10.2.21
+  "default-nameserver": ["223.5.5.5", "1.2.4.8", "10.10.0.21", "10.10.2.21"],
+  // ========================
+  nameserver: [...foreignNameservers],
+  "proxy-server-nameserver": [...domesticNameservers],
+  "direct-nameserver": [...domesticNameservers],
+  // ========= 修改 =========
+  // 拆分 private 和 cn，确保 private 流量（包括IP段）仅使用内网DNS
+  // 确保 zju.edu.cn 域名也仅使用内网DNS
   "nameserver-policy": {
-    "geosite:private,cn,geolocation-cn": domesticNameservers,
-    "geosite:google,youtube,telegram,gfw,geolocation-!cn": foreignNameservers
+    "geosite:private": intranetNameservers,
+    "geosite:cn": domesticNameservers,
+    "+.zju.edu.cn": intranetNameservers,
+
+    // === 新增以下规则 ===
+    "geosite:openai": foreignNameservers,
+    "geosite:category-ai-chat-!cn": foreignNameservers,
+    "domain:openai.com": foreignNameservers,
+    "domain:chatgpt.com": foreignNameservers,
+    "domain:google.com": foreignNameservers,
+    "domain:gemini.google.com": foreignNameservers
+
+
   }
+  // ========================
 };
 // 规则集通用配置
 const ruleProviderCommon = {
-  "type": "http",
-  "format": "yaml",
-  "interval": 86400
+  type: "http",
+  format: "yaml",
+  interval: 86400
 };
 // 规则集配置
 const ruleProviders = {
-  "reject": {
+  reject: {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt",
-    "path": "./ruleset/loyalsoldier/reject.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt",
+    path: "./ruleset/loyalsoldier/reject.yaml"
   },
-  "icloud": {
+  icloud: {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt",
-    "path": "./ruleset/loyalsoldier/icloud.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt",
+    path: "./ruleset/loyalsoldier/icloud.yaml"
   },
-  "apple": {
+  apple: {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt",
-    "path": "./ruleset/loyalsoldier/apple.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt",
+    path: "./ruleset/loyalsoldier/apple.yaml"
   },
-  "google": {
+  google: {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt",
-    "path": "./ruleset/loyalsoldier/google.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt",
+    path: "./ruleset/loyalsoldier/google.yaml"
   },
-  "proxy": {
+  proxy: {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt",
-    "path": "./ruleset/loyalsoldier/proxy.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt",
+    path: "./ruleset/loyalsoldier/proxy.yaml"
   },
-  "direct": {
+  direct: {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt",
-    "path": "./ruleset/loyalsoldier/direct.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt",
+    path: "./ruleset/loyalsoldier/direct.yaml"
   },
-  "private": {
+  private: {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/private.txt",
-    "path": "./ruleset/loyalsoldier/private.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/private.txt",
+    path: "./ruleset/loyalsoldier/private.yaml"
   },
-  "gfw": {
+  gfw: {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt",
-    "path": "./ruleset/loyalsoldier/gfw.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt",
+    path: "./ruleset/loyalsoldier/gfw.yaml"
   },
   "tld-not-cn": {
     ...ruleProviderCommon,
-    "behavior": "domain",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/tld-not-cn.txt",
-    "path": "./ruleset/loyalsoldier/tld-not-cn.yaml"
+    behavior: "domain",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/tld-not-cn.txt",
+    path: "./ruleset/loyalsoldier/tld-not-cn.yaml"
   },
-  "telegramcidr": {
+  telegramcidr: {
     ...ruleProviderCommon,
-    "behavior": "ipcidr",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt",
-    "path": "./ruleset/loyalsoldier/telegramcidr.yaml"
+    behavior: "ipcidr",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt",
+    path: "./ruleset/loyalsoldier/telegramcidr.yaml"
   },
-  "cncidr": {
+  cncidr: {
     ...ruleProviderCommon,
-    "behavior": "ipcidr",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt",
-    "path": "./ruleset/loyalsoldier/cncidr.yaml"
+    behavior: "ipcidr",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt",
+    path: "./ruleset/loyalsoldier/cncidr.yaml"
   },
-  "lancidr": {
+  lancidr: {
     ...ruleProviderCommon,
-    "behavior": "ipcidr",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt",
-    "path": "./ruleset/loyalsoldier/lancidr.yaml"
+    behavior: "ipcidr",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt",
+    path: "./ruleset/loyalsoldier/lancidr.yaml"
   },
-  "applications": {
+  applications: {
     ...ruleProviderCommon,
-    "behavior": "classical",
-    "url": "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/applications.txt",
-    "path": "./ruleset/loyalsoldier/applications.yaml"
+    behavior: "classical",
+    url: "https://fastly.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/applications.txt",
+    path: "./ruleset/loyalsoldier/applications.yaml"
   },
-  "openai": {
+  bahamut: {
     ...ruleProviderCommon,
-    "behavior": "classical",
-    "url": "https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OpenAI/OpenAI.yaml",
-    "path": "./ruleset/blackmatrix7/openai.yaml"
+    behavior: "classical",
+    url: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/rule/Bahamut.txt",
+    path: "./ruleset/xiaolin-007/bahamut.yaml"
+  },
+  YouTube: {
+    ...ruleProviderCommon,
+    behavior: "classical",
+    url: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/rule/YouTube.txt",
+    path: "./ruleset/xiaolin-007/YouTube.yaml"
+  },
+  Netflix: {
+    ...ruleProviderCommon,
+    behavior: "classical",
+    url: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/rule/Netflix.txt",
+    path: "./ruleset/xiaolin-007/Netflix.yaml"
+  },
+  Spotify: {
+    ...ruleProviderCommon,
+    behavior: "classical",
+    url: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/rule/Spotify.txt",
+    path: "./ruleset/xiaolin-007/Spotify.yaml"
+  },
+  BilibiliHMT: {
+    ...ruleProviderCommon,
+    behavior: "classical",
+    url: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/rule/BilibiliHMT.txt",
+    path: "./ruleset/xiaolin-007/BilibiliHMT.yaml"
+  },
+  // AI: {
+  //   ...ruleProviderCommon,
+  //   behavior: "classical",
+  //   url: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/rule/AI.txt",
+  //   path: "./ruleset/xiaolin-007/AI.yaml"
+  // },
+
+
+  TikTok: {
+    ...ruleProviderCommon,
+    behavior: "classical",
+    url: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/rule/TikTok.txt",
+    path: "./ruleset/xiaolin-007/TikTok.yaml"
   }
 };
-// 规则
+// 规则（基础）
 const rules = [
-  // 自定义规则
-  "DOMAIN-SUFFIX,googleapis.cn,节点选择", // Google服务
-  "DOMAIN-SUFFIX,gstatic.com,节点选择", // Google静态资源
-  "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,节点选择", // Google Play下载服务
-  "DOMAIN-SUFFIX,github.io,节点选择", // Github Pages
-  "DOMAIN,v2rayse.com,节点选择", // V2rayse节点工具
-  // blackmatrix7 规则集
-  "RULE-SET,openai,ChatGPT",
-  // Loyalsoldier 规则集
+  // ======== ChatGPT / OpenAI 专用规则 ========
+  "DOMAIN-SUFFIX,chatgpt.com,ChatGPT",
+  "DOMAIN-SUFFIX,openai.com,ChatGPT",
+  "DOMAIN-SUFFIX,oaistatic.com,ChatGPT",
+  "DOMAIN-SUFFIX,oaiusercontent.com,ChatGPT",
+  "DOMAIN-SUFFIX,openaiapi-site.azureedge.net,ChatGPT",
+  "DOMAIN-KEYWORD,openai,ChatGPT",
+
+
+  // ======== 新增：DexScreener独立规则 ========
+  // ======== DexScreener ========
+  "DOMAIN-SUFFIX,dexscreener.com,DexScreener",
+  "DOMAIN-SUFFIX,dexscreener.io,DexScreener",
+  "DOMAIN-KEYWORD,dexscreener,DexScreener",
+  "DOMAIN,dex-screener-16543.firebaseapp.com,DexScreener",
+  // 附加：如果K线图加载不出，通常是因为 TradingView 被分流了，建议加上这一条
+  "DOMAIN-SUFFIX,tradingview.com,DexScreener",
+  // ======== DexScreener 静态资源补漏 ========
+  // 注意：这个域名少写了 'er'
+  "DOMAIN,static.dexscreen.com,DexScreener",
+  "DOMAIN-SUFFIX,dexscreen.com,DexScreener",
+  // ======== 新增：Gemini 独立规则 ========
+
+  // ======== Gemini（Google AI 系列）========
+  "DOMAIN,ai.google.dev,Gemini",
+  "DOMAIN,aistudio.google.com,Gemini",
+  "DOMAIN,bard.google.com,Gemini",
+  "DOMAIN,gemini.google.com,Gemini",
+  "DOMAIN,generativelanguage.googleapis.com,Gemini",
+  "DOMAIN,makersuite.google.com,Gemini",
+  "DOMAIN,notebooklm.google.com,Gemini",
+
+  // 可选：兜底的关键字规则（不要写太泛的 google，容易误杀）
+  "DOMAIN-KEYWORD,gemini,Gemini",
+  "DOMAIN-KEYWORD,makersuite,Gemini",
+  "DOMAIN-KEYWORD,aistudio,Gemini",
+  "DOMAIN-KEYWORD,aistudio,Gemini",
+  // ======== Antigravity 分流（增量，放在 Gemini 区块）========
+  // ✅ OpenVSX 实际下载域名（你日志里就是这个）
+  "DOMAIN,openvsx.eclipsecontent.org,Gemini",
+  "DOMAIN-SUFFIX,eclipsecontent.org,Gemini",   // 可选：若未来还会用其它 eclipsecontent 子域
+
+  // Antigravity 主站/后端（尽量精确）
+  "DOMAIN,antigravity.google,Gemini",
+  "DOMAIN-SUFFIX,antigravity.google,Gemini",   // 保险：可能存在子域
+
+  // Gemini/Google AI API（Antigravity 常用）
+  "DOMAIN,generativelanguage.googleapis.com,Gemini",
+  "DOMAIN-SUFFIX,googleapis.com,Gemini",
+
+  // Antigravity 扩展/更新：Open VSX（Antigravity 默认用它装插件）
+  "DOMAIN,open-vsx.org,Gemini",
+  "DOMAIN-SUFFIX,open-vsx.org,Gemini",
+
+  // 常见静态资源/CDN（避免页面/扩展下载卡住）
+  "DOMAIN-SUFFIX,googleusercontent.com,Gemini",
+  "DOMAIN-SUFFIX,gvt1.com,Gemini",
+  "DOMAIN-SUFFIX,run.app,Gemini",
+  "DOMAIN-SUFFIX,goog,Gemini",
+  "PROCESS-NAME,Antigravity.exe,Gemini",
+
+
+
+  "DOMAIN-SUFFIX,googleapis.cn,节点选择",
+  "DOMAIN-SUFFIX,gstatic.com,节点选择",
+  "DOMAIN-SUFFIX,xn--ngstr-lra8j.com,节点选择",
+  "DOMAIN-SUFFIX,github.io,节点选择",
+  "DOMAIN,v2rayse.com,节点选择",
+
   "RULE-SET,applications,全局直连",
   "RULE-SET,private,全局直连",
   "RULE-SET,reject,广告过滤",
   "RULE-SET,icloud,微软服务",
   "RULE-SET,apple,苹果服务",
+  "RULE-SET,YouTube,YouTube",
+  "RULE-SET,Netflix,Netflix",
+  "RULE-SET,bahamut,动画疯",
+  "RULE-SET,Spotify,Spotify",
+  "RULE-SET,BilibiliHMT,哔哩哔哩港澳台",
+  // "RULE-SET,AI,AI",
+  "RULE-SET,TikTok,TikTok",
   "RULE-SET,google,谷歌服务",
   "RULE-SET,proxy,节点选择",
   "RULE-SET,gfw,节点选择",
@@ -160,23 +299,40 @@ const rules = [
   "RULE-SET,lancidr,全局直连,no-resolve",
   "RULE-SET,cncidr,全局直连,no-resolve",
   "RULE-SET,telegramcidr,电报消息,no-resolve",
-  // 其他规则
+
+  "GEOSITE,CN,全局直连",
   "GEOIP,LAN,全局直连,no-resolve",
   "GEOIP,CN,全局直连,no-resolve",
   "MATCH,漏网之鱼"
 ];
 // 代理组通用配置
 const groupBaseOption = {
-  "interval": 300,
-  "timeout": 3000,
-  "url": "https://www.google.com/generate_204",
-  "lazy": true,
+  interval: 300,
+  timeout: 3000,
+  url: "https://www.google.com/generate_204",
+  lazy: true,
   "max-failed-times": 3,
-  "hidden": false
+  hidden: false
 };
 
-// 程序入口
+// ===================== 合并后的主入口 =====================
+// (以下 main 函数及内容保持不变)
 function main(config) {
+  // ================= 1. 【新增】注入本地 RVPN 节点 =================
+  // 必须确保 EasyConnect 开启且监听在 11080 端口
+  const localRvpnProxy = {
+    name: "🖥 EZ4Connect",
+    type: "socks5",
+    server: "127.0.0.1",
+    port: 11080,
+    udp: true
+  };
+
+  // 确保 config.proxies 存在，并把节点加进去
+  config.proxies = config.proxies || [];
+  config.proxies.push(localRvpnProxy);
+
+  // 基础校验
   const proxyCount = config?.proxies?.length ?? 0;
   const proxyProviderCount =
     typeof config?.["proxy-providers"] === "object" ? Object.keys(config["proxy-providers"]).length : 0;
@@ -184,132 +340,7 @@ function main(config) {
     throw new Error("配置文件中未找到任何代理");
   }
 
-  // 覆盖原配置中DNS配置
-  config["dns"] = dnsConfig;
-
-  // 覆盖原配置中的代理组
-  config["proxy-groups"] = [
-    {
-      ...groupBaseOption,
-      "name": "节点选择",
-      "type": "select",
-      "proxies": ["延迟选优", "故障转移", "负载均衡(散列)", "负载均衡(轮询)"],
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/adjust.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "延迟选优",
-      "type": "url-test",
-      "tolerance": 100,
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/speed.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "故障转移",
-      "type": "fallback",
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/ambulance.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "负载均衡(散列)",
-      "type": "load-balance",
-      "strategy": "consistent-hashing",
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/merry_go.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "负载均衡(轮询)",
-      "type": "load-balance",
-      "strategy": "round-robin",
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/balance.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "谷歌服务",
-      "type": "select",
-      "proxies": ["节点选择", "延迟选优", "故障转移", "负载均衡(散列)", "负载均衡(轮询)", "全局直连"],
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/google.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "国外媒体",
-      "type": "select",
-      "proxies": ["节点选择", "延迟选优", "故障转移", "负载均衡(散列)", "负载均衡(轮询)", "全局直连"],
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/youtube.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "电报消息",
-      "type": "select",
-      "proxies": ["节点选择", "延迟选优", "故障转移", "负载均衡(散列)", "负载均衡(轮询)", "全局直连"],
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/telegram.svg"
-    },
-    {
-      ...groupBaseOption,
-      "url": "https://chatgpt.com",
-      "expected-status": "200",
-      "name": "ChatGPT",
-      "type": "select",
-      "include-all": true,
-      "filter": "AD|🇦🇩|AE|🇦🇪|AF|🇦🇫|AG|🇦🇬|AL|🇦🇱|AM|🇦🇲|AO|🇦🇴|AR|🇦🇷|AT|🇦🇹|AU|🇦🇺|AZ|🇦🇿|BA|🇧🇦|BB|🇧🇧|BD|🇧🇩|BE|🇧🇪|BF|🇧🇫|BG|🇧🇬|BH|🇧🇭|BI|🇧🇮|BJ|🇧🇯|BN|🇧🇳|BO|🇧🇴|BR|🇧🇷|BS|🇧🇸|BT|🇧🇹|BW|🇧🇼|BZ|🇧🇿|CA|🇨🇦|CD|🇨🇩|CF|🇨🇫|CG|🇨🇬|CH|🇨🇭|CI|🇨🇮|CL|🇨🇱|CM|🇨🇲|CO|🇨🇴|CR|🇨🇷|CV|🇨🇻|CY|🇨🇾|CZ|🇨🇿|DE|🇩🇪|DJ|🇩🇯|DK|🇩🇰|DM|🇩🇲|DO|🇩🇴|DZ|🇩🇿|EC|🇪🇨|EE|🇪🇪|EG|🇪🇬|ER|🇪🇷|ES|🇪🇸|ET|🇪🇹|FI|🇫🇮|FJ|🇫🇯|FM|🇫🇲|FR|🇫🇷|GA|🇬🇦|GB|🇬🇧|GD|🇬🇩|GE|🇬🇪|GH|🇬🇭|GM|🇬🇲|GN|🇬🇳|GQ|🇬🇶|GR|🇬🇷|GT|🇬🇹|GW|🇬🇼|GY|🇬🇾|HN|🇭🇳|HR|🇭🇷|HT|🇭🇹|HU|🇭🇺|ID|🇮🇩|IE|🇮🇪|IL|🇮🇱|IN|🇮🇳|IQ|🇮🇶|IS|🇮🇸|IT|🇮🇹|JM|🇯🇲|JO|🇯🇴|JP|🇯🇵|KE|🇰🇪|KG|🇰🇬|KH|🇰🇭|KI|🇰🇮|KM|🇰🇲|KN|🇰🇳|KR|🇰🇷|KW|🇰🇼|KZ|🇰🇿|LA|🇱🇦|LB|🇱🇧|LC|🇱🇨|LI|🇱🇮|LK|🇱🇰|LR|🇱🇷|LS|🇱🇸|LT|🇱🇹|LU|🇱🇺|LV|🇱🇻|LY|🇱🇾|MA|🇲🇦|MC|🇲🇨|MD|🇲🇩|ME|🇲🇪|MG|🇲🇬|MH|🇲🇭|MK|🇲🇰|ML|🇲🇱|MM|🇲🇲|MN|🇲🇳|MR|🇲🇷|MT|🇲🇹|MU|🇲🇺|MV|🇲🇻|MW|🇲🇼|MX|🇲🇽|MY|🇲🇾|MZ|🇲🇿|NA|🇳🇦|NE|🇳🇪|NG|🇳🇬|NI|🇳🇮|NL|🇳🇱|NO|🇳🇴|NP|🇳🇵|NR|🇳🇷|NZ|🇳🇿|OM|🇴🇲|PA|🇵🇦|PE|🇵🇪|PG|🇵🇬|PH|🇵🇭|PK|🇵🇰|PL|🇵🇱|PS|🇵🇸|PT|🇵🇹|PW|🇵🇼|PY|🇵🇾|QA|🇶🇦|RO|🇷🇴|RS|🇷🇸|RW|🇷🇼|SA|🇸🇦|SB|🇸🇧|SC|🇸🇨|SD|🇸🇩|SE|🇸🇪|SG|🇸🇬|SI|🇸🇮|SK|🇸🇰|SL|🇸🇱|SM|🇸🇲|SN|🇸🇳|SO|🇸🇴|SR|🇸🇷|SS|🇸🇸|ST|🇸🇹|SV|🇸🇻|SZ|🇸🇿|TD|🇹🇩|TG|🇹🇬|TH|🇹🇭|TJ|🇹🇯|TL|🇹🇱|TM|🇹🇲|TN|🇹🇳|TO|🇹🇴|TR|🇹🇷|TT|🇹🇹|TV|🇹🇻|TW|🇹🇼|TZ|🇹🇿|UA|🇺🇦|UG|🇺🇬|US|🇺🇸|UY|🇺🇾|UZ|🇺🇿|VA|🇻🇦|VC|🇻🇨|VN|🇻🇳|VU|🇻🇺|WS|🇼🇸|YE|🇾🇪|ZA|🇿🇦|ZM|🇿🇲|ZW|🇿🇼",
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/chatgpt.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "微软服务",
-      "type": "select",
-      "proxies": ["全局直连", "节点选择", "延迟选优", "故障转移", "负载均衡(散列)", "负载均衡(轮询)"],
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/microsoft.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "苹果服务",
-      "type": "select",
-      "proxies": ["节点选择", "延迟选优", "故障转移", "负载均衡(散列)", "负载均衡(轮询)", "全局直连"],
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/apple.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "广告过滤",
-      "type": "select",
-      "proxies": ["REJECT", "DIRECT"],
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/bug.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "全局直连",
-      "type": "select",
-      "proxies": ["DIRECT", "节点选择", "延迟选优", "故障转移", "负载均衡(散列)", "负载均衡(轮询)"],
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/link.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "全局拦截",
-      "type": "select",
-      "proxies": ["REJECT", "DIRECT"],
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/block.svg"
-    },
-    {
-      ...groupBaseOption,
-      "name": "漏网之鱼",
-      "type": "select",
-      "proxies": ["节点选择", "延迟选优", "故障转移", "负载均衡(散列)", "负载均衡(轮询)", "全局直连"],
-      "include-all": true,
-      "icon": "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/fish.svg"
-    }
-  ];
-    // 初始化 listeners 数组
+  // 初始化 listeners 数组
   config.listeners = config.listeners || [];
   let port = 50000; // 起始端口
 
@@ -324,10 +355,312 @@ function main(config) {
     port++; // 每个监听器的端口递增
   });
 
-  // 覆盖原配置中的规则
+  // 1) 覆盖/注入 DNS、规则与代理组（防 DNS 泄露部分）
+  config.dns = dnsConfig;
+
+  config["proxy-groups"] = [
+    {
+      ...groupBaseOption,
+      name: "节点选择",
+      type: "select",
+      "include-all": true,
+      filter: "^(?!.*(官网|套餐|流量|异常|剩余)).*$",
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/adjust.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "谷歌服务",
+      type: "select",
+      proxies: ["节点选择", "全局直连"],
+      "include-all": true,
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/google.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "YouTube",
+      type: "select",
+      proxies: ["节点选择", "全局直连"],
+      "include-all": true,
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/youtube.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "Netflix",
+      type: "select",
+      proxies: ["节点选择", "全局直连"],
+      "include-all": true,
+      icon: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/icon/netflix.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "电报消息",
+      type: "select",
+      proxies: ["节点选择", "全局直连"],
+      "include-all": true,
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/telegram.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "ChatGPT",
+      type: "select",
+      "include-all": true,
+      proxies: ["节点选择"],
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/chatgpt.svg"
+    },
+
+    {
+      ...groupBaseOption,
+      name: "Gemini",
+      type: "select",
+      "include-all": true,
+      proxies: ["节点选择"],
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/chatgpt.svg"
+    },
+
+    {
+      ...groupBaseOption,
+      name: "DexScreener",
+      type: "select",
+      "include-all": true,
+      proxies: ["节点选择"],
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/chatgpt.svg"
+    },
+
+
+    {
+      ...groupBaseOption,
+      name: "TikTok",
+      type: "select",
+      "include-all": true,
+      proxies: ["节点选择"],
+      icon: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/icon/tiktok.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "微软服务",
+      type: "select",
+      proxies: ["全局直连", "节点选择"],
+      "include-all": true,
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/microsoft.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "苹果服务",
+      type: "select",
+      proxies: ["节点选择", "全局直连"],
+      "include-all": true,
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/apple.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "动画疯",
+      type: "select",
+      proxies: ["节点选择"],
+      "include-all": true,
+      filter: "(?i)台|tw|TW",
+      icon: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/icon/Bahamut.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "哔哩哔哩港澳台",
+      type: "select",
+      proxies: ["全局直连", "节点选择"],
+      "include-all": true,
+      filter: "^(?!.*(官网|套餐|流量|异常|剩余)).*$",
+      icon: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/icon/bilibili.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "Spotify",
+      type: "select",
+      proxies: ["节点选择", "全局直连"],
+      "include-all": true,
+      icon: "https://fastly.jsdelivr.net/gh/xiaolin-007/clash@main/icon/spotify.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "广告过滤",
+      type: "select",
+      proxies: ["REJECT", "DIRECT"],
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/bug.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "全局直连",
+      type: "select",
+      proxies: ["DIRECT", "节点选择"],
+      "include-all": true,
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/link.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "全局拦截",
+      type: "select",
+      proxies: ["REJECT", "DIRECT"],
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/block.svg"
+    },
+    {
+      ...groupBaseOption,
+      name: "漏网之鱼",
+      type: "select",
+      proxies: ["节点选择", "全局直连"],
+      "include-all": true,
+      filter: "^(?!.*(官网|套餐|流量|异常|剩余)).*$",
+      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/fish.svg"
+    },
+    // —— 合并：追加 ZJU 分组选项（用于前置路由的规则落盘）——
+    { name: "ZJU", type: "select", proxies: ["DIRECT", "🖥 EZ4Connect"] }
+
+
+
+
+  ];
+
   config["rule-providers"] = ruleProviders;
   config["rules"] = rules;
 
-  // 返回修改后的配置
+  // 为每个节点开启 UDP
+  if (config.proxies) {
+    config.proxies.forEach(p => (p.udp = true));
+  }
+
+  // 2) 追加你的 ZJU 规则：前置到现有 rules 前面，并路由到 "ZJU" 组
+  const zju_rules = `
+DOMAIN-KEYWORD,zju.edu.cn
+DOMAIN-KEYWORD,cc98
+
+DOMAIN-KEYWORD,nexushd
+DOMAIN-SUFFIX,dessci.com
+DOMAIN-SUFFIX,icsr.wiki
+DOMAIN-SUFFIX,zjusec.com
+DOMAIN-KEYWORD,spiedigitallibrary
+DOMAIN-SUFFIX,aiaa.org
+
+DOMAIN-SUFFIX,zjusec.net
+DOMAIN-SUFFIX,zjusec.top
+DOMAIN-SUFFIX,zjusct.io
+DOMAIN-SUFFIX,zjueva.net
+DOMAIN-SUFFIX,zjuqsc.com
+DOMAIN-KEYWORD,chalaoshi
+DOMAIN-KEYWORD,optica.org
+DOMAIN-KEYWORD,engineeringvillage.com
+DOMAIN-SUFFIX,cnki.net
+DOMAIN-KEYWORD,cnki.net
+DOMAIN-SUFFIX,mdpi.com
+DOMAIN-SUFFIX,mdpi-res.com
+DOMAIN-SUFFIX,ieee.hum.works
+DOMAIN-SUFFIX,engineeringvillage.com
+IP-CIDR,10.0.0.0/8,no-resolve
+IP-CIDR,58.196.192.0/19,no-resolve
+IP-CIDR,58.196.224.0/20,no-resolve
+IP-CIDR,58.200.100.0/24,no-resolve
+IP-CIDR,210.32.0.0/20,no-resolve
+IP-CIDR,210.32.128.0/19,no-resolve
+IP-CIDR,210.32.160.0/21,no-resolve
+IP-CIDR,210.32.168.0/22,no-resolve
+IP-CIDR,210.32.172.0/23,no-resolve
+IP-CIDR,210.32.174.0/24,no-resolve
+IP-CIDR,210.32.176.0/20,no-resolve
+IP-CIDR,222.205.0.0/17,no-resolve
+DOMAIN-SUFFIX,acm.org
+DOMAIN-SUFFIX,gtadata.com
+DOMAIN-SUFFIX,grass.io
+
+
+DOMAIN-SUFFIX,jstor.org
+DOMAIN-SUFFIX,webofscience.com
+DOMAIN-SUFFIX,inoteexpress.com
+DOMAIN-SUFFIX,pnas.org
+DOMAIN-SUFFIX,cnpereading.com
+DOMAIN-SUFFIX,sciencemag.org
+DOMAIN-SUFFIX,cas.org
+DOMAIN-SUFFIX,webofknowledge.com
+DOMAIN-SUFFIX,pkulaw.com
+DOMAIN-SUFFIX,sslibrary.com
+DOMAIN-SUFFIX,serialssolutions.com
+DOMAIN-SUFFIX,duxiu.com
+DOMAIN-SUFFIX,wanfangdata.com.cn
+DOMAIN-SUFFIX,koolearn.com
+DOMAIN-SUFFIX,cssci.nju.edu.cn
+DOMAIN-SUFFIX,elsevier.com
+DOMAIN-SUFFIX,science.org
+DOMAIN-SUFFIX,aps.org
+DOMAIN-SUFFIX,incopat.com
+DOMAIN-SUFFIX,oup.com
+DOMAIN-SUFFIX,ajtmh.org
+DOMAIN-SUFFIX,futuremedicine.com
+DOMAIN-SUFFIX,tandfonline.com
+DOMAIN-SUFFIX,genetics.org
+DOMAIN-SUFFIX,healthaffairs.org
+DOMAIN-SUFFIX,rsna.org
+DOMAIN-SUFFIX,iospress.com
+DOMAIN-SUFFIX,allenpress.com
+DOMAIN-SUFFIX,asabe.org
+DOMAIN-SUFFIX,geoscienceworld.org
+DOMAIN-SUFFIX,sagepub.com
+DOMAIN-SUFFIX,ajnr.org
+DOMAIN-SUFFIX,ajhp.org
+DOMAIN-SUFFIX,annals.org
+DOMAIN-SUFFIX,esajournals.org
+DOMAIN-SUFFIX,informs.org
+DOMAIN-SUFFIX,cshlpress.com
+DOMAIN-SUFFIX,nrcresearchpress.cn
+DOMAIN-SUFFIX,royalsocietypublishing.org
+DOMAIN-SUFFIX,oxfordjournals.org
+DOMAIN-SUFFIX,aspbjournals.org
+DOMAIN-SUFFIX,sciencesocieties.org
+DOMAIN-SUFFIX,degruyter.com
+DOMAIN-SUFFIX,cshprotocols.org
+DOMAIN-SUFFIX,liebertonline.com
+DOMAIN-SUFFIX,polymerjournals.com
+DOMAIN-SUFFIX,csiro.au
+DOMAIN-SUFFIX,iop.org
+DOMAIN-SUFFIX,electrochem.org
+DOMAIN-SUFFIX,ametsoc.org
+DOMAIN-SUFFIX,portlandpress.com
+DOMAIN-SUFFIX,nrcresearchpress.com
+DOMAIN-SUFFIX,arabidopsis.org
+DOMAIN-SUFFIX,springerlink.com
+DOMAIN-SUFFIX,highwire.org
+DOMAIN-SUFFIX,ovid.com
+DOMAIN-SUFFIX,rsc.org
+DOMAIN-SUFFIX,bmj.org
+DOMAIN-SUFFIX,aip.org
+DOMAIN-SUFFIX,springer.com
+DOMAIN-SUFFIX,iwaponline.com
+DOMAIN-SUFFIX,rsnajnls.org
+DOMAIN-SUFFIX,karger.com
+DOMAIN-SUFFIX,plantcell.org
+DOMAIN-SUFFIX,jamanetwork.com
+DOMAIN-SUFFIX,nejm.org
+DOMAIN-SUFFIX,icevirtuallibrary.com
+DOMAIN-SUFFIX,cdnsciencepub.com
+DOMAIN-SUFFIX,canvas-user-content.com
+DOMAIN-KEYWORD,illinois
+DOMAIN-SUFFIX,iclicker.com
+DOMAIN-SUFFIX,emerald.com
+DOMAIN-SUFFIX,ieee.org
+DOMAIN-SUFFIX,proquest.com
+DOMAIN-SUFFIX,sciencedirect.com
+DOMAIN-SUFFIX,nature.com
+DOMAIN-SUFFIX,acs.org
+DOMAIN-SUFFIX,taylorfrancis.com
+DOMAIN-SUFFIX,osapublishing.org
+DOMAIN-SUFFIX,clarivate.com
+DOMAIN-SUFFIX,gale.com
+DOMAIN-SUFFIX,worldscientific.com
+DOMAIN-SUFFIX,siam.org
+DOMAIN-SUFFIX,ascelibrary.org
+DOMAIN-SUFFIX,scitation.org
+DOMAIN-SUFFIX,wiley.com
+`.split("\n")
+    .filter(Boolean)
+    // 把每条规则路由到 ZJU 组，同时保留原有 no-resolve
+    .map(rule => rule.trim().replace(/(,no-resolve)?$/, ",ZJU$1"));
+
+  // 规则前置：ZJU → 其他规则
+  config.rules = ["DOMAIN,vpn.zju.edu.cn,DIRECT", ...zju_rules, ...config.rules];
+
+  // 返回最终合并后的配置
   return config;
 }

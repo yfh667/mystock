@@ -53,14 +53,14 @@ if __name__ == "__main__":
     limit = 100
     currency = "usd"
     token = "base"
-    proxy_port = 50001  # 指定代理端口
+    proxy_port = 7890  # 指定代理端口
 
     ohlcv_data = geck.get_token_history2(network, pool_address, timeframe, aggregate, before_timestamp, limit, currency, token, proxy_port)
 
 
     for data in ohlcv_data:
         print(data.time)
-    print(ohlcv_data[0])
+    # print(ohlcv_data[0])
 
 
 

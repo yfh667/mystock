@@ -57,7 +57,7 @@ def main():
     headers = {"Authorization": "Bearer manba"}
 
 
-    tokendata = db.readdbtoken()
+    tokendata                           = db.readdbtoken()
 
 
     # 初始化字典，用链名作为键，地址列表作为值
@@ -70,14 +70,11 @@ def main():
     startport = 50000
 
 
-    current_time = datetime.datetime.utcnow()
+    current_time = datetime.datetime.now(datetime.UTC)
 
 
     before_timestamp = current_time
    # before_timestamp = current_time - datetime.timedelta(days=5)
-
-
-
 
 
     before_timestamp = before_timestamp.timestamp()
