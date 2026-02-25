@@ -49,7 +49,7 @@ def get_times_before(times, timeframe, aggregate, limit):
 
     return calls
 def gethistorywithgeck(realpairaddress,chain_id,proxys,timeframe,aggregate,before_timestamp,limit):
-    rate = 0.5
+    rate = 0.4
     capacity =30
     max_threads_per_proxy =1
 
