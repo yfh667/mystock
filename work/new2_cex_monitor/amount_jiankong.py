@@ -1,0 +1,188 @@
+import dexprice.modules.mexc.getalltoken as getalltoken
+import dexprice.modules.cexdb.cexdb as cexdb
+import time
+import dexprice.modules.utilis.define as define
+import os
+import dexprice.modules.utilis.findroot as findroot
+import dexprice.modules.mexc.initial_timesta as initial_timesta
+import dexprice.modules.mexc.initial_timesta_parall as initial_timesta_parall
+import dexprice.modules.proxy.proxymultitheread as proxymultitheread
+import dexprice.modules.mexc.getalltoken as getalltoken
+import dexprice.modules.cexdb.cexdb as cexdb
+import dexprice.modules.tg.tgbot as tgbot
+
+import dexprice.modules.utilis.define as define
+import os
+import dexprice.modules.utilis.findroot as findroot
+import dexprice.modules.mexc.initial_timesta as initial_timesta
+import dexprice.modules.mexc.initial_timesta_parall as initial_timesta_parall
+import dexprice.modules.proxy.proxymultitheread as proxymultitheread
+import dexprice.modules.utilis.timedefine as timedefine
+from dexprice.three import creattime
+import dexprice.modules.OHLCV.one_geck as one_geck
+import dexprice.modules.mexc.mexc_queue as mexc_queue
+import dexprice.modules.mexc.mexcovhl_parall as mexcovhl_parall
+import datetime
+import dexprice.modules.cexdb.cexdb as cexdb
+
+import dexprice.modules.utilis.define as define
+import os
+import dexprice.modules.utilis.findroot as findroot
+
+import  dexprice.modules.cexdb.multidb as multidb
+
+import dexprice.modules.strategy.basefunction as basefunction
+
+
+
+
+
+
+if __name__ == "__main__":
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = findroot.find_project_root(current_dir)
+    DATA_FOLDER = os.path.join(PROJECT_ROOT, "Data")
+
+
+
+
+
+    db_folder = DATA_FOLDER + '/cex'  # 数据库存储文件夹
+
+
+    #
+    # db_name = "mexc_contract" + '.db'  # 数据库文件名
+    # db = cexdb.CexSQLiteDatabase(db_folder, db_name)
+    #
+    # db.connect()
+    #
+    # # symbol = getalltoken.getalltoken()
+    # symbol = [t for t in getalltoken.getalltoken()
+    #           if "STOCK" not in t.upper() and t.endswith("_USDT")]
+    #
+    # # symbol  = ['BTC','SOL']
+    # tokens = []
+    # filtered = [t for t in symbol if "STOCK" not in t.upper()]
+    # symbol = filtered
+    # rate = 0.3
+    # capacity = 10
+    # max_threads_per_proxy = 1
+    # clash_api_url = "http://127.0.0.1:9097"
+    # headers = {"Authorization": "Bearer manba"}
+    #
+    # startport = 50000
+    #
+    # proxys = proxymultitheread.get_one_ip_proxy_multithread(startport, clash_api_url, headers)
+    #
+    # task_manager = initial_timesta_parall.MexcTaskManager(
+    #     symbol,
+    #     proxys,
+    #     rate,
+    #     capacity,
+    #     max_threads_per_proxy,
+    #
+    # )
+    # results, failed_tasks = task_manager.run()
+    # print(results)
+    #
+    # db.insert_Multidata(results)
+    # # 打印实例属性
+    #
+    # db.close()
+    # and we insert into the db
+
+    # here we could just use one token
+
+    kline = 'D'
+    aggregate = 1
+
+
+
+    db_name_raw = "mexc_contract" + '.db'  # 数据库文件名
+
+    db_mubiao_name = "mexc_contract_wanted_time_price" + str(aggregate) + kline + '.db'
+    flag = 1
+
+    db = cexdb.CexSQLiteDatabase(db_folder, db_name_raw)
+
+    db.connect()
+
+    tokens = db.readdbtoken()
+    creattime_want = one_geck.datetime_to_timestamp(2020, 1, 1, 0, 0, 0, is_utc=True)
+
+    usetoken = []
+
+    usetoken=tokens
+
+    db.close()
+
+    # db_mubiao_name = "myspot" + '.db'
+    db = cexdb.CexSQLiteDatabase(db_folder, db_mubiao_name)
+    db.connect()
+    db.insert_Multidata(usetoken)
+
+
+
+
+    price_time_want = one_geck.datetime_to_timestamp(2025, 6, 28, 0, 0, is_utc=True)
+
+    # price_time_want = one_geck.datetime_to_timestamp(2025, 6, 24, 0, 0, 0, is_utc=True)
+    # 获取当前时间的 UTC 时间戳
+    current_time = datetime.datetime.utcnow()
+    current_time = current_time- datetime.timedelta(days=1)
+    # 计算前两天的时间
+
+    # current_time = one_geck.datetime_to_timestamp(2025, 7 , 2, 0, 0, is_utc=True)
+
+    two_days_ago = current_time - datetime.timedelta(days=2)
+
+    # 将其转换为时间戳格式
+    start_timestamp = two_days_ago.timestamp()
+
+    end_timestamp = one_geck.datetime_to_timestamp(2025, 7, 10, 0, 0, 0, is_utc=True)
+
+    six_day_ago = current_time - datetime.timedelta(days=7)
+
+  #  nowday = current_time - datetime.timedelta(days=1)
+    nowday = current_time
+    day_ago = nowday - datetime.timedelta(days=7)
+
+    #  start_timestamp = price_time_want
+    start_timestamp = day_ago.timestamp()
+    # one_day_ago =  current_time - datetime.timedelta(days=2)
+    # end_timestamp = timedefine.get_current_utc_timestemp()
+    end_timestamp = nowday.timestamp()
+    ##
+    queues = []
+
+    for token in usetoken:
+        queue = mexc_queue.mexc_create_request_queue(token.name, start_timestamp, end_timestamp, kline, aggregate)
+        queues.extend(queue)
+
+    rate = 0.3
+    capacity = 20
+    max_threads_per_proxy = 1
+    clash_api_url = "http://127.0.0.1:9097"
+    headers = {"Authorization": "Bearer manba"}
+
+    startport = 50000
+
+    proxys = proxymultitheread.get_one_ip_proxy_multithread(startport, clash_api_url, headers)
+    task_manager = mexcovhl_parall.MexcOvhlTaskManager(
+        queues,
+        proxys,
+        rate,
+        capacity,
+        max_threads_per_proxy,
+        flag
+    )
+
+    results, failed_tasks = task_manager.run()
+    # print(results)
+
+    # 打印实例属性
+    token_price_history_list = db.collect_ovhl_data(results)
+    db.insert_multiple_price_history(token_price_history_list)
+
+    db.close()
+
