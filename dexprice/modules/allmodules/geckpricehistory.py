@@ -49,8 +49,8 @@ def get_times_before(times, timeframe, aggregate, limit):
 
     return calls
 def gethistorywithgeck(realpairaddress,chain_id,proxys,timeframe,aggregate,before_timestamp,limit):
-    rate = 0.4
-    capacity =30
+    rate = 0.15
+    capacity =10
     max_threads_per_proxy =1
 
     task_manager = geck_parrel.GeckTaskManager(
