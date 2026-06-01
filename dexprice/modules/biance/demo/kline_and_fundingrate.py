@@ -95,11 +95,11 @@ def plot_combined_chart(funding_data: list[dict], kline_data: list[list], symbol
 if __name__ == "__main__":
     print("=== 开始获取并绘制 Binance 历史资金费率和 K 线 ===")
 
-    test_symbol = "ARC_USDT"
+    test_symbol = "BANANAS31_USDT"
 
     # 拉取 2 个月的数据（比如2024年初的多头大行情阶段），这样看折线变化比较明显
-    start_dt = datetime(2026, 1, 14, tzinfo=timezone.utc)
-    end_dt = datetime(2026, 2, 27,hour=10, tzinfo=timezone.utc)
+    start_dt = datetime(2026, 2, 28, tzinfo=timezone.utc)
+    end_dt = datetime(2026, 3, 24,hour=4, tzinfo=timezone.utc)
 
     start_ts = int(start_dt.timestamp())
     end_ts = int(end_dt.timestamp())
